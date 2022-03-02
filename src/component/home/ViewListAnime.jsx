@@ -3,31 +3,62 @@ import { Row, Col, Table, List } from "antd";
 import useWindowDimensions from "../UseWindowDimensions";
 import AnimeCard from "../card/AnimeCard";
 
-const ViewListAnime = ({ information }) => {
+const ViewListAnime = ({ pageSizeAnime, information, titleSection }) => {
   const { height, width } = useWindowDimensions();
-  console.log("information :>> ", information);
+
+  const page = (width) => {
+    let numPagination;
+    let countPageSize = pageSizeAnime;
+
+    if (width < 576) {
+      numPagination = 1 * countPageSize;
+    }
+    if (width >= 576) {
+      numPagination = 1 * countPageSize;
+    }
+    if (width >= 768) {
+      numPagination = 2 * countPageSize;
+    }
+    if (width >= 992) {
+      numPagination = 3 * countPageSize;
+    }
+    if (width >= 1200) {
+      numPagination = 4 * countPageSize;
+    }
+    if (width >= 1600) {
+      numPagination = 6 * countPageSize;
+    }
+    return numPagination;
+  };
+
   return (
-    <List
-      grid={{
-        xs: 1,
-        sm: 1,
-        md: 2,
-        lg: 2,
-        xl: 3,
-        xxl: 4,
-      }}
-      pagination={{
-        position: "top",
-        className: "pagination-home",
-        pageSize: width >= 1200 ? 20 : 10,
-      }}
-      dataSource={information}
-      renderItem={(rec) => (
-        <List.Item>
-          <AnimeCard key={rec.id} descriptionAnime={rec} />
-        </List.Item>
-      )}
-    />
+    <>
+      <div className="section-title">
+        <h3>{titleSection}</h3>
+        <a href="#">more...</a>
+      </div>
+      <List
+        grid={{
+          xs: 1,
+          sm: 1,
+          md: 2,
+          lg: 3,
+          xl: 4,
+          xxl: 6,
+        }}
+        pagination={{
+          position: "bottom",
+          className: "pagination-home",
+          pageSize: page(width),
+        }}
+        dataSource={information}
+        renderItem={(rec) => (
+          <List.Item style={{ justifyContent: "center", display: "flex" }}>
+            <AnimeCard key={rec.id} descriptionAnime={rec} />
+          </List.Item>
+        )}
+      />
+    </>
   );
 };
 

@@ -1,5 +1,6 @@
 import React from "react";
-import { Card, Avatar } from "antd";
+import { Card, Tooltip } from "antd";
+import parse from "html-react-parser";
 import "./card.css";
 import {
   EditOutlined,
@@ -10,27 +11,41 @@ import {
 const { Meta } = Card;
 
 const AnimeCard = ({ descriptionAnime }) => {
+  //console.log(descriptionAnime.mail_id); ==> id da passare per l'informazione
   return (
-    <Card
-      hoverable
-      style={{ width: 300 }}
-      cover={
-        <img
-          className="anime-card-img"
-          alt="example"
-          src={descriptionAnime.image_url}
-        />
-      }
-    >
-      <Meta
-        title={descriptionAnime.title}
-        description={
-          descriptionAnime.date
-            ? `${descriptionAnime.date} | ${descriptionAnime.type}`
-            : `No date | ${descriptionAnime.type}`
+    <a href="#">
+      <Card
+        className="anime-card"
+        hoverable
+        style={{ width: 200 }}
+        cover={
+          <img
+            className="anime-card-img"
+            alt="example"
+            src={descriptionAnime.image_url}
+          />
         }
-      />
-    </Card>
+      >
+        <Meta
+          title={
+            <Tooltip
+              placement="topLeft"
+              color={"#d84a1b"}
+              key={"#d84a1b"}
+              title={descriptionAnime.title}
+            >
+              {parse(`<b style="color:#d84a1b">${descriptionAnime.rank}.</b>`)}
+              {`  ${descriptionAnime.title}`}
+            </Tooltip>
+          }
+          description={
+            descriptionAnime.start_date
+              ? `${descriptionAnime.start_date} | ${descriptionAnime.type}`
+              : `No date | ${descriptionAnime.type}`
+          }
+        />
+      </Card>
+    </a>
   );
 };
 

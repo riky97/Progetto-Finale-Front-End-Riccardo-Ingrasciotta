@@ -1,4 +1,14 @@
+.anime-card {
+  background-color: #020307 !important;
+  border: none !important;
+}
+.ant-card-meta-title {
+  color: #fff !important;
+}
+.ant-card-meta-description {
+  color: #fff5 !important;
+}
+
 .anime-card-img {
-  width: 300px;
-  height: 280px;
+  height: 260px;
 }

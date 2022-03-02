@@ -1,6 +1,6 @@
 import axios from "axios";
 
-export const getTopAnime = () => {
+export const getTopAnimeUpcoming = () => {
   const getAnime = async () => {
     const options = {
       method: "GET",
