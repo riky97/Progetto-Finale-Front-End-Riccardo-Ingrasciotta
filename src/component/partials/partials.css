@@ -1,0 +1,37 @@
+/********SIDEBAR********/
+.anime-sidebar {
+  overflow: auto;
+  height: 100vh;
+  position: fixed !important;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  background: #1a1a1a !important;
+}
+.anime-sidebar div ul {
+  background: #1a1a1a;
+  color: #fff;
+  border-right: none;
+}
+.anime-sidebar div ul li:hover {
+  color: #d84a1b !important;
+}
+.anime-sidebar div ul li:active {
+  background-color: #fad4bc !important;
+  color: #d84a1b !important;
+}
+.ant-menu-item-selected {
+  background-color: #fad4bc !important;
+  color: #d84a1b !important;
+}
+.ant-menu-item-selected::after {
+  border-right: 5px solid #d84a1b !important;
+}
+
+/*****FOOTER*****/
+
+.anime-footer {
+  text-align: center;
+  color: #fff !important;
+  background-color: #1a1a1a !important;
+}

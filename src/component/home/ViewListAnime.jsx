@@ -3,7 +3,7 @@ import { Row, Col, Table, List } from "antd";
 import useWindowDimensions from "../UseWindowDimensions";
 import AnimeCard from "../card/AnimeCard";
 
-const ViewListAnime = ({ pageSizeAnime, information, titleSection }) => {
+const ViewListAnime = ({ path, pageSizeAnime, information, titleSection }) => {
   const { height, width } = useWindowDimensions();
 
   const page = (width) => {
@@ -35,9 +35,10 @@ const ViewListAnime = ({ pageSizeAnime, information, titleSection }) => {
     <>
       <div className="section-title">
         <h3>{titleSection}</h3>
-        <a href="#">more...</a>
+        <a href={path}>more...</a>
       </div>
       <List
+        loading={false}
         grid={{
           xs: 1,
           sm: 1,

@@ -5,6 +5,7 @@
   height: 32px;
   margin: 16px;
   background: rgba(255, 255, 255, 0.2);
+  color: #fff;
 }
 
 .site-layout-content {
@@ -30,6 +31,15 @@
   font-weight: 1000;
   float: right;
 }
+
+.ant-empty-description {
+  color: #fff;
+}
+.ant-empty-img-simple {
+  filter: invert(0.1);
+}
+
+/**********PAGINATION**************/
 
 .pagination-home .ant-pagination-prev button,
 .pagination-home .ant-pagination-next button {
