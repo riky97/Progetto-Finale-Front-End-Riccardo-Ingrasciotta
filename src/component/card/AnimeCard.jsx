@@ -11,9 +11,8 @@ import {
 const { Meta } = Card;
 
 const AnimeCard = ({ descriptionAnime }) => {
-  //console.log(descriptionAnime.mail_id); ==> id da passare per l'informazione
   return (
-    <a href="#">
+    <a href={`/information/${descriptionAnime.mal_id}`}>
       <Card
         className="anime-card"
         hoverable

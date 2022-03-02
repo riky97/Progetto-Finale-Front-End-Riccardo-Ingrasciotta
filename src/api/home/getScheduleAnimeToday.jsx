@@ -5,7 +5,7 @@ export const getScheduleAnimeToday = () => {
     const day = new Date();
     let numDay = day.getDay();
     let today = "other";
-    console.log(typeof numDay);
+
     switch (numDay) {
       case 0:
         return (today = "sunday");

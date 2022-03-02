@@ -55,7 +55,7 @@ function App() {
     const day = new Date();
     let numDay = day.getDay();
     let today = "other";
-    console.log(typeof numDay);
+
     switch (numDay) {
       case 0:
         return (today = "sunday");
@@ -79,6 +79,7 @@ function App() {
     const anime = async () => {
       const res = await getScheduleAnimeToday();
       const today = getTodayDay();
+      console.log(res[today]);
       setScheduleAnimeToday(res[today]);
     };
     anime();
