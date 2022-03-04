@@ -31,7 +31,13 @@ function App() {
           className="site-layout-background"
           style={{ padding: 0 }}
         ></Header>
-        <Content style={{ margin: "24px 16px 0", overflow: "initial" }}>
+        <Content
+          style={
+            width <= 768
+              ? { margin: "24px 6px 0", overflow: "initial" }
+              : { margin: "24px 16px 0", overflow: "initial" }
+          }
+        >
           <Breadcrumb style={{ margin: "16px 0" }}>
             <Breadcrumb.Item>Home</Breadcrumb.Item>
           </Breadcrumb>

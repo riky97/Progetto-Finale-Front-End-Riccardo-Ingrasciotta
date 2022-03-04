@@ -43,7 +43,10 @@
 }
 
 /**********PAGINATION**************/
-
+.ant-pagination {
+  display: flex;
+  justify-content: center;
+}
 .pagination-home .ant-pagination-prev button,
 .pagination-home .ant-pagination-next button {
   background: none !important;

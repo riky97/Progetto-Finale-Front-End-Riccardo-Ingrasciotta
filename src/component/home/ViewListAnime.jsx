@@ -48,6 +48,7 @@ const ViewListAnime = ({ path, pageSizeAnime, information, titleSection }) => {
           xxl: 6,
         }}
         pagination={{
+          defaultCurrent: 1,
           position: "bottom",
           className: "pagination-home",
           pageSize: page(width),
