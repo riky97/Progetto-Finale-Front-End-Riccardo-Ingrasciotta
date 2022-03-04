@@ -30,12 +30,17 @@ const ViewListAnime = ({ path, pageSizeAnime, information, titleSection }) => {
     }
     return numPagination;
   };
+  const setPageMore = (value) => {
+    localStorage.setItem("more", value);
+  };
 
   return (
     <>
       <div className="section-title">
         <h3>{titleSection}</h3>
-        <a href={path}>more...</a>
+        <a href={path} onClick={() => setPageMore(path)}>
+          more...
+        </a>
       </div>
       <List
         loading={false}
