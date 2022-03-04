@@ -1,47 +1,47 @@
 import React, { useEffect, useState } from "react";
-import { Row, Col, Table, List } from "antd";
-import axios from "axios";
+import { List } from "antd";
 
 import AnimeCard from "../card/AnimeCard";
+import AnimeCardGenre from "../card/AnimeCardGenre";
 import useWindowDimensions from "../shared/UseWindowDimensions";
 
-const AllAnimeList = () => {
-  const [generalTop, setGeneralTop] = useState([]);
+//API
+import { getAllAnimeLIst } from "../../api/allAnime/getAllAnimeLIst";
+import { getListAnimeGenre } from "../../api/genre/getListAnimeGenre";
+
+import "../home/home.css";
+
+const AllAnimeList = ({ type }) => {
+  const [generalTopAnime, setgeneralTopAnime] = useState([]);
+  const [generalGenreAnime, setgeneralGenreAnime] = useState([]);
   const { height, width } = useWindowDimensions();
   const split = localStorage.getItem("more").split("/");
   const path = split[split.length - 1];
-  console.log(path);
 
   useEffect(() => {
     const anime = async () => {
-      const res = await getAnime();
+      const path = localStorage.getItem("path");
+      if (path === "topanime") {
+        const res = await getAllAnimeLIst();
+        setgeneralTopAnime(res.top);
+      }
+      if (path === "genre") {
+        const res = await getListAnimeGenre();
 
-      setGeneralTop(res.top);
+        setgeneralGenreAnime(res.anime);
+      }
     };
     anime();
   }, []);
-  const getAnime = async () => {
-    const split = localStorage.getItem("more").split("/");
-    let path = split[split.length - 1];
-    if (path === "anime") {
-      path = "tv";
-    }
-    const options = {
-      method: "GET",
-      url: `https://jikan1.p.rapidapi.com/top/anime/1/${path}`,
-      headers: {
-        "x-rapidapi-host": "jikan1.p.rapidapi.com",
-        "x-rapidapi-key": "02981a4988msh9df5c33d8f59e71p1dafacjsnd9ae58ff2120",
-      },
-    };
-    const response = await axios.request(options);
-    const data = response.data;
-    return data;
-  };
 
   const page = (width) => {
     let numPagination;
-    let countPageSize = 2;
+    let countPageSize;
+    if (type === "genre") {
+      countPageSize = 4;
+    } else {
+      countPageSize = 3;
+    }
 
     if (width < 576) {
       numPagination = 1 * countPageSize;
@@ -68,7 +68,12 @@ const AllAnimeList = () => {
     <>
       <div className="section-title">
         <h3>
-          {generalTop.length} {path}
+          {type === "topanime" ? `${generalTopAnime.length} ${path}` : ""}
+          {type === "genre"
+            ? `${localStorage.getItem("nameGenre")} ${
+                generalGenreAnime.length
+              } `
+            : ""}
         </h3>
       </div>
       <List
@@ -87,10 +92,14 @@ const AllAnimeList = () => {
           className: "pagination-home",
           pageSize: page(width),
         }}
-        dataSource={generalTop}
+        dataSource={type === "genre" ? generalGenreAnime : generalTopAnime}
         renderItem={(rec) => (
           <List.Item style={{ justifyContent: "center", display: "flex" }}>
-            <AnimeCard key={rec.id} descriptionAnime={rec} />
+            {type === "genre" ? (
+              <AnimeCardGenre key={rec.id} descriptionAnime={rec} />
+            ) : (
+              <AnimeCard key={rec.id} descriptionAnime={rec} />
+            )}
           </List.Item>
         )}
       />

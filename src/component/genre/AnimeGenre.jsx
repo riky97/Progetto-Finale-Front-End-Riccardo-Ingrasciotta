@@ -54,8 +54,9 @@ const AnimeGenre = () => {
       name: "Kids Anime",
     },
   ];
-  const setInLocal = (value) => {
+  const setInLocal = (value, name) => {
     localStorage.setItem("genre", value);
+    localStorage.setItem("nameGenre", name);
   };
 
   return (
@@ -69,7 +70,7 @@ const AnimeGenre = () => {
               <a
                 href={`/genre/${item.name.replace(/ /g, "").toLowerCase()}`}
                 style={{ color: " #fff" }}
-                onClick={() => setInLocal(item.mal_id)}
+                onClick={() => setInLocal(item.mal_id, item.name)}
               >
                 <ArrowRightOutlined style={{ fontSize: "1.8em" }} />
               </a>

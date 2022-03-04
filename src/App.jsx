@@ -60,7 +60,14 @@ function App() {
             <Router>
               <Routes>
                 <Route path="/genre" element={<AnimeGenre />} />
-                <Route path="/topanime/:id" element={<AllAnimeList />} />
+                <Route
+                  path="/topanime/:id"
+                  element={<AllAnimeList type="topanime" />}
+                />
+                <Route
+                  path="/genre/:id"
+                  element={<AllAnimeList type="genre" />}
+                />
               </Routes>
             </Router>
           </div>

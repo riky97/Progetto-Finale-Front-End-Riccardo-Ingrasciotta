@@ -68,6 +68,15 @@
   font-size: 2rem;
   border: none !important;
 }
+.ant-pagination-options {
+  display: none !important;
+}
+.ant-pagination-next {
+  border: none !important;
+}
+.ant-pagination-next:active {
+  background-color: #030303 !important;
+}
 
 .pagination-home li:first-child,
 .pagination-home li:last-child {
