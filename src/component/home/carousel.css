@@ -6,8 +6,8 @@
 }
 
 .carousel-anime {
-  padding-left: 7em;
-  padding-right: 7em;
+  margin-left: 7em;
+  margin-right: 7em;
   max-width: 100%;
   display: flex;
   justify-content: center;
