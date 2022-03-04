@@ -14,9 +14,20 @@ import "../home/home.css";
 const AllAnimeList = ({ type }) => {
   const [generalTopAnime, setgeneralTopAnime] = useState([]);
   const [generalGenreAnime, setgeneralGenreAnime] = useState([]);
+  const [nameGenre, setNameGenre] = useState("");
   const { height, width } = useWindowDimensions();
-  const split = localStorage.getItem("more").split("/");
-  const path = split[split.length - 1];
+  const split = window.location.href.split("/");
+  let path = "";
+  if (type === "topanime") {
+    path = split[split.length - 1];
+    localStorage.setItem("more", path);
+  }
+  if (type === "genre") {
+    path = split[split.length - 1];
+    localStorage.setItem("genre", path);
+  }
+  //const split = localStorage.getItem("more").split("/");
+  //const path = split[split.length - 1];
 
   useEffect(() => {
     const anime = async () => {
@@ -27,8 +38,8 @@ const AllAnimeList = ({ type }) => {
       }
       if (path === "genre") {
         const res = await getListAnimeGenre();
-
         setgeneralGenreAnime(res.anime);
+        setNameGenre(res.mal_url.name);
       }
     };
     anime();
@@ -68,12 +79,10 @@ const AllAnimeList = ({ type }) => {
     <>
       <div className="section-title">
         <h3>
-          {type === "topanime" ? `${generalTopAnime.length} ${path}` : ""}
-          {type === "genre"
-            ? `${localStorage.getItem("nameGenre")} ${
-                generalGenreAnime.length
-              } `
+          {type === "topanime"
+            ? `${generalTopAnime.length} ${localStorage.getItem("more")}`
             : ""}
+          {type === "genre" ? `${generalGenreAnime.length} ${nameGenre}  ` : ""}
         </h3>
       </div>
       <List

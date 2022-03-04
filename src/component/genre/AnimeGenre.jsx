@@ -54,10 +54,10 @@ const AnimeGenre = () => {
       name: "Kids Anime",
     },
   ];
-  const setInLocal = (value, name) => {
-    localStorage.setItem("genre", value);
-    localStorage.setItem("nameGenre", name);
-  };
+  // const setInLocal = (value, name) => {
+  //   localStorage.setItem("genre", value);
+  //   localStorage.setItem("nameGenre", name);
+  // };
 
   return (
     <>
@@ -67,11 +67,7 @@ const AnimeGenre = () => {
           <List.Item className="genre-list-anime" key={item.mal_id}>
             <List.Item.Meta title={item.name} />
             <div>
-              <a
-                href={`/genre/${item.name.replace(/ /g, "").toLowerCase()}`}
-                style={{ color: " #fff" }}
-                onClick={() => setInLocal(item.mal_id, item.name)}
-              >
+              <a href={`/genre/${item.mal_id}`} style={{ color: " #fff" }}>
                 <ArrowRightOutlined style={{ fontSize: "1.8em" }} />
               </a>
             </div>

@@ -3,8 +3,9 @@ import axios from "axios";
 
 export const getAllAnimeLIst = () => {
   const getAnime = async () => {
-    const split = localStorage.getItem("more").split("/");
-    let path = split[split.length - 1];
+    // const split = localStorage.getItem("more").split("/");
+    // let path = split[split.length - 1];
+    let path = localStorage.getItem("more");
     if (path === "anime") {
       path = "tv";
     }
