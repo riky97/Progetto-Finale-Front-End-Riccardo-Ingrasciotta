@@ -58,12 +58,12 @@
 /*XXL*/
 @media (width >= 1600px) {
   .carousel-anime {
-    margin-left: 16em;
-    margin-right: 16em;
+    margin-left: 20em;
+    margin-right: 20em;
   }
   .image-carousel {
     width: 100%;
-    height: 55vh;
+    height: 45vh;
   }
 }
 
