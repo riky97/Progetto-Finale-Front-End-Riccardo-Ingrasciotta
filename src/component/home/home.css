@@ -74,7 +74,7 @@
 .ant-pagination-next {
   border: none !important;
 }
-.ant-pagination-next:active {
+.pagination-home .ant-pagination-next:active {
   background-color: #030303 !important;
 }
 
