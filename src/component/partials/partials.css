@@ -8,12 +8,15 @@
   bottom: 0;
   background: #1a1a1a !important;
 }
+.anime-sidebar div ul li a {
+  color: #fff;
+}
 .anime-sidebar div ul {
   background: #1a1a1a;
   color: #fff;
   border-right: none;
 }
-.anime-sidebar div ul li:hover {
+.anime-sidebar div ul li a:hover {
   color: #d84a1b !important;
 }
 .anime-sidebar div ul li:active {
@@ -22,6 +25,8 @@
 }
 .ant-menu-item-selected {
   background-color: #fad4bc !important;
+}
+.ant-menu-item-selected a {
   color: #d84a1b !important;
 }
 .ant-menu-item-selected::after {

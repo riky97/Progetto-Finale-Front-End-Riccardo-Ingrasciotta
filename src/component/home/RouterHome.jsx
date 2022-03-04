@@ -61,7 +61,42 @@ const RouterHome = () => {
     <Router>
       <Routes>
         <Route
-          path={"/"}
+          exact
+          path="/"
+          element={
+            <>
+              <CarouselAnime
+                animeList={scheduleAnimeToday}
+                todayDay={getTodayDay()}
+              />
+              <hr />
+              <ViewListAnime
+                path="/topanime/upcoming"
+                titleSection={`top ${topAnimeUpcoming.length} anime/movie upcoming`}
+                pageSizeAnime={1}
+                information={topAnimeUpcoming}
+              />
+              <hr />
+              <ViewListAnime
+                path="/topanime/anime"
+                titleSection={`top ${topAnimeTV.length} anime`}
+                pageSizeAnime={1}
+                information={topAnimeTV}
+              />
+              <hr />
+              <ViewListAnime
+                path="/topanime/movie"
+                titleSection={`top ${topAnimeMovie.length} movie`}
+                pageSizeAnime={1}
+                information={topAnimeMovie}
+              />
+              <hr />
+            </>
+          }
+        />
+        <Route
+          exact
+          path="/home"
           element={
             <>
               <CarouselAnime

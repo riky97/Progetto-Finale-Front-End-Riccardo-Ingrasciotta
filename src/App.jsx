@@ -7,15 +7,26 @@ import AnimeSidebar from "./component/partials/AnimeSidebar";
 import AnimeFooter from "./component/partials/AnimeFooter";
 import RouterHome from "./component/home/RouterHome";
 
+//SHARED
+import { getPathName } from "./component/shared/getPathName";
+import useWindowDimensions from "./component/shared/UseWindowDimensions";
+
 //ANTD
 import { Layout, Menu, Breadcrumb } from "antd";
+import { useEffect } from "react";
 const { Header, Content, Footer, Sider } = Layout;
 
 function App() {
+  const { height, width } = useWindowDimensions();
+  getPathName();
   return (
     <Layout hasSider>
-      <AnimeSidebar />
-      <Layout className="layout" style={{ marginLeft: 200 }}>
+      {width <= 768 ? "" : <AnimeSidebar />}
+
+      <Layout
+        className="layout"
+        style={width <= 768 ? { marginLeft: 0 } : { marginLeft: 200 }}
+      >
         <Header
           className="site-layout-background"
           style={{ padding: 0 }}

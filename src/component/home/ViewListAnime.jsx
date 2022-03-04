@@ -1,6 +1,6 @@
 import React from "react";
 import { Row, Col, Table, List } from "antd";
-import useWindowDimensions from "../UseWindowDimensions";
+import useWindowDimensions from "../shared/UseWindowDimensions";
 import AnimeCard from "../card/AnimeCard";
 
 const ViewListAnime = ({ path, pageSizeAnime, information, titleSection }) => {
@@ -14,7 +14,7 @@ const ViewListAnime = ({ path, pageSizeAnime, information, titleSection }) => {
       numPagination = 1 * countPageSize;
     }
     if (width >= 576) {
-      numPagination = 1 * countPageSize;
+      numPagination = 2 * countPageSize;
     }
     if (width >= 768) {
       numPagination = 2 * countPageSize;
@@ -41,7 +41,7 @@ const ViewListAnime = ({ path, pageSizeAnime, information, titleSection }) => {
         loading={false}
         grid={{
           xs: 1,
-          sm: 1,
+          sm: 2,
           md: 2,
           lg: 3,
           xl: 4,

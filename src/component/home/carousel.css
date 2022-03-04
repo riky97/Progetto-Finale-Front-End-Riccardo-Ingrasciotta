@@ -6,16 +6,65 @@
 }
 
 .carousel-anime {
-  margin-left: 7em;
-  margin-right: 7em;
   max-width: 100%;
   display: flex;
   justify-content: center;
 }
-
 .image-carousel {
   width: 100%;
   height: 40vh;
+}
+
+/*XS*/
+@media (width < 576px) {
+  .carousel-anime {
+    margin-left: 0;
+    margin-right: 0;
+  }
+}
+
+/*SM*/
+@media (width >= 576px) {
+  .carousel-anime {
+    margin-left: 0;
+    margin-right: 0;
+  }
+}
+/*MD*/
+@media (width >= 768px) {
+  .carousel-anime {
+    margin-left: 4em;
+    margin-right: 4em;
+  }
+}
+/*LG*/
+@media (width >= 992px) {
+  .carousel-anime {
+    margin-left: 4em;
+    margin-right: 4em;
+  }
+}
+/*XL*/
+@media (width >= 1200px) {
+  .carousel-anime {
+    margin-left: 6em;
+    margin-right: 6em;
+  }
+  .image-carousel {
+    width: 100%;
+    height: 45vh;
+  }
+}
+/*XXL*/
+@media (width >= 1600px) {
+  .carousel-anime {
+    margin-left: 16em;
+    margin-right: 16em;
+  }
+  .image-carousel {
+    width: 100%;
+    height: 55vh;
+  }
 }
 
 .content-style {
