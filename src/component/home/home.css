@@ -10,6 +10,16 @@
 .site-layout-background {
   background: #030303 !important;
 }
+.breadcrump h2 {
+  font-size: 1.6rem;
+  color: #fff;
+  padding-left: 24px;
+}
+.breadcrump p {
+  font-size: 1rem;
+  color: #fff6;
+  padding-left: 3em;
+}
 
 .site-layout-content {
   min-height: 90vh;
