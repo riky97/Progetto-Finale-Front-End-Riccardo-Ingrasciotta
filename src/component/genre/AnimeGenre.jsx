@@ -3,66 +3,13 @@ import "./genre.css";
 import { List, message, Avatar } from "antd";
 import { ArrowRightOutlined } from "@ant-design/icons";
 
-const AnimeGenre = () => {
-  const data = [
-    {
-      mal_id: 1,
-      name: "Action Anime",
-    },
-    {
-      mal_id: 2,
-      name: "Adventure Anime",
-    },
-    {
-      mal_id: 3,
-      name: "Cars Anime",
-    },
-    {
-      mal_id: 4,
-      name: "Comedy Anime",
-    },
-    {
-      mal_id: 5,
-      name: "Avant Garde Anime",
-    },
-    {
-      mal_id: 6,
-      name: "Demons Anime",
-    },
-    {
-      mal_id: 7,
-      name: "Mystery Anime",
-    },
-    {
-      mal_id: 8,
-      name: "Drama Anime",
-    },
-    {
-      mal_id: 10,
-      name: "Fantasy Anime",
-    },
-    {
-      mal_id: 11,
-      name: "Game Anime",
-    },
-    {
-      mal_id: 14,
-      name: "Horror Anime",
-    },
-    {
-      mal_id: 15,
-      name: "Kids Anime",
-    },
-  ];
-  // const setInLocal = (value, name) => {
-  //   localStorage.setItem("genre", value);
-  //   localStorage.setItem("nameGenre", name);
-  // };
+import { getAllGenre } from "./getAllGenre";
 
+const AnimeGenre = () => {
   return (
     <>
       <List
-        dataSource={data}
+        dataSource={getAllGenre()}
         renderItem={(item) => (
           <List.Item className="genre-list-anime" key={item.mal_id}>
             <List.Item.Meta title={item.name} />
