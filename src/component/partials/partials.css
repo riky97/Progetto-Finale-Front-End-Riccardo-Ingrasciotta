@@ -8,18 +8,6 @@
   bottom: 0;
   background: #1a1a1a !important;
 }
-/* .anime-sidebar {
-  overflow: none;
-  height: 10vh;
-  position: fixed !important;
-  display: flex;
-  flex-direction: row;
-  min-width: 100vw;
-  z-index: 1000000;
-  left: 0;
-  bottom: 0;
-  background: #1a1a1a !important;
-} */
 
 .anime-sidebar div ul li a {
   color: #fff;
@@ -36,14 +24,67 @@
   background-color: #fad4bc !important;
   color: #d84a1b !important;
 }
-.ant-menu-item-selected {
+.anime-sidebar .ant-menu-item-selected {
   background-color: #fad4bc !important;
 }
-.ant-menu-item-selected a {
+.anime-sidebar .ant-menu-item-selected a {
   color: #d84a1b !important;
 }
-.ant-menu-item-selected::after {
+.anime-sidebar .ant-menu-item-selected::after {
   border-right: 5px solid #d84a1b !important;
+}
+
+.anime-sidebar-bottom {
+  overflow: hidden;
+  background: #1a1a1a !important;
+  position: fixed !important;
+  bottom: 0 !important;
+  min-width: 100% !important;
+  z-index: 10000;
+  border-top-right-radius: 1em;
+  border-top-left-radius: 1em;
+  padding: 0.8em;
+}
+
+.anime-sidebar-bottom .ant-layout-sider-children .logo {
+  display: none;
+}
+.anime-sidebar-bottom .ant-layout-sider-children ul {
+  display: flex;
+  justify-content: space-around !important;
+}
+.anime-sidebar-bottom div ul li {
+  display: flex;
+  justify-content: center;
+}
+.anime-sidebar-bottom div ul li a {
+  color: #fff !important;
+  font-size: 1.2em;
+}
+.anime-sidebar-bottom div ul {
+  background: #1a1a1a;
+  color: #fff;
+  border-right: none;
+}
+.anime-sidebar-bottom .anticon {
+  font-size: 1.2em !important;
+}
+.anime-sidebar-bottom .ant-menu-item {
+  text-align: center;
+}
+
+.anime-sidebar-bottom div ul li:active {
+  background-color: #1a1a1a !important;
+  color: #d84a1b !important;
+}
+.anime-sidebar-bottom .ant-menu-item-selected {
+  background-color: #1a1a1a !important;
+}
+.anime-sidebar-bottom .ant-menu-item-selected a {
+  color: #d84a1b !important;
+}
+.anime-sidebar-bottom .ant-menu-item-selected::after {
+  border-right: none !important;
 }
 
 /*****FOOTER*****/

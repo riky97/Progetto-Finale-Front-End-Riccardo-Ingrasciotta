@@ -1,20 +1,19 @@
-import React from "react";
-import { Row, Col, Table, List } from "antd";
-import useWindowDimensions from "../shared/UseWindowDimensions";
+import { Input, Space, List } from "antd";
+import React, { useEffect, useState } from "react";
+
 import AnimeCard from "../card/AnimeCard";
+import AnimeCardGenre from "../card/AnimeCardGenre";
+import useWindowDimensions from "../shared/UseWindowDimensions";
+import "./search.css";
 
-const ViewListAnime = ({
-  path,
-  pageSizeAnime,
-  information,
-  titleSection,
-  noSection,
-}) => {
+import AllAnimeList from "../allAnimeList/AllAnimeList";
+const { Search } = Input;
+
+const AnimeSearch = () => {
   const { height, width } = useWindowDimensions();
-
   const page = (width) => {
     let numPagination;
-    let countPageSize = pageSizeAnime;
+    let countPageSize;
 
     if (width < 576) {
       numPagination = 1 * countPageSize;
@@ -37,12 +36,22 @@ const ViewListAnime = ({
     return numPagination;
   };
 
+  const onSearch = (value) => console.log(value);
+
   return (
     <>
-      <div className="section-title">
-        <h3>{titleSection}</h3>
-        <a href={path}>more...</a>
+      <div className="section-title section-search">
+        <h3>Search</h3>
+        <Search
+          className="anime-search"
+          width={30}
+          placeholder="input search text"
+          onSearch={onSearch}
+          size="large"
+          enterButton
+        />
       </div>
+      <hr />
 
       <List
         loading={false}
@@ -60,10 +69,10 @@ const ViewListAnime = ({
           className: "pagination-home",
           pageSize: page(width),
         }}
-        dataSource={information}
+        dataSource={[]}
         renderItem={(rec) => (
           <List.Item style={{ justifyContent: "center", display: "flex" }}>
-            <AnimeCard key={rec.id} descriptionAnime={rec} />
+            <AnimeCardGenre key={rec.id} descriptionAnime={rec} />
           </List.Item>
         )}
       />
@@ -71,4 +80,4 @@ const ViewListAnime = ({
   );
 };
 
-export default ViewListAnime;
+export default AnimeSearch;

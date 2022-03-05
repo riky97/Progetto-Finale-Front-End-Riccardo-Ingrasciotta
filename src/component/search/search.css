@@ -1,0 +1,33 @@
+.section-title .anime-search {
+  float: right;
+}
+.section-search {
+  padding: 1.5em;
+}
+
+.anime-search {
+  width: 25em !important;
+}
+.anime-search span input {
+  background-color: transparent;
+  border-radius: 10em;
+  border-color: #d84a1b;
+  color: #fff;
+}
+.anime-search span input:hover {
+  border-color: #d84a1b !important;
+}
+.anime-search span input:focus {
+  border-color: #d84a1b !important;
+}
+.anime-search span span button {
+  background-color: #d84a1b;
+  border: none !important;
+  border-top-right-radius: 5em !important;
+}
+.anime-search span span button:hover {
+  background-color: #d84a1b;
+}
+.anime-search span span.ant-input-group-addon {
+  background-color: #030303 !important;
+}

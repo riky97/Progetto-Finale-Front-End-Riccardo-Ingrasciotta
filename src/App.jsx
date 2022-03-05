@@ -12,6 +12,7 @@ import RouterHome from "./component/home/RouterHome";
 import AnimeGenre from "./component/genre/AnimeGenre";
 import AllAnimeList from "./component/allAnimeList/AllAnimeList";
 import InformationAnime from "./component/information/InformationAnime";
+import AnimeSearch from "./component/search/AnimeSearch";
 
 //SHARED
 import { getPathName } from "./component/shared/getPathName";
@@ -27,7 +28,11 @@ function App() {
   getPathName();
   return (
     <Layout hasSider>
-      {width <= 768 ? "" : <AnimeSidebar />}
+      {width <= 768 ? (
+        <AnimeSidebar pos="anime-sidebar-bottom" />
+      ) : (
+        <AnimeSidebar pos="anime-sidebar" />
+      )}
 
       <Layout
         className="layout"
@@ -70,6 +75,7 @@ function App() {
                   element={<AllAnimeList type="genre" />}
                 />
                 <Route path="/information/:id" element={<InformationAnime />} />
+                <Route path="/search" element={<AnimeSearch />} />
               </Routes>
             </Router>
           </div>
