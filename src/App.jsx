@@ -11,6 +11,7 @@ import AnimeFooter from "./component/partials/AnimeFooter";
 import RouterHome from "./component/home/RouterHome";
 import AnimeGenre from "./component/genre/AnimeGenre";
 import AllAnimeList from "./component/allAnimeList/AllAnimeList";
+import InformationAnime from "./component/information/InformationAnime";
 
 //SHARED
 import { getPathName } from "./component/shared/getPathName";
@@ -68,6 +69,7 @@ function App() {
                   path="/genre/:id"
                   element={<AllAnimeList type="genre" />}
                 />
+                <Route path="/information/:id" element={<InformationAnime />} />
               </Routes>
             </Router>
           </div>

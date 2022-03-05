@@ -12,6 +12,7 @@ export const getTopAnimeMovie = () => {
     };
     const response = await axios.request(options);
     const data = response.data;
+
     return data;
   };
   return getAnime();

@@ -36,6 +36,7 @@ export const getScheduleAnimeToday = () => {
     };
     const response = await axios.request(options);
     const data = response.data;
+
     return data;
   };
   return getAnime();

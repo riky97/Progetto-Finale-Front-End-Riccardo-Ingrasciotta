@@ -30,9 +30,6 @@ const ViewListAnime = ({ path, pageSizeAnime, information, titleSection }) => {
     }
     return numPagination;
   };
-  // const setPageMore = (value) => {
-  //   localStorage.setItem("more", value);
-  // };
 
   return (
     <>
