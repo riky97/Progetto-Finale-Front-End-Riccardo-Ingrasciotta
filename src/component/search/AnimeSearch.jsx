@@ -52,6 +52,8 @@ const AnimeSearch = () => {
           setAnimeSearch(search.results);
         } catch {
           setLoading(false);
+          setAnimeSearch("");
+          value = "";
         }
       };
 

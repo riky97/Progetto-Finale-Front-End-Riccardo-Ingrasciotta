@@ -6,7 +6,7 @@ const { Footer } = Layout;
 const AnimeFooter = () => {
   return (
     <Footer className="anime-footer">
-      Ant Design ©2018 Created by Ant UED
+      Anime List ©2022 Created by Riccardo Ingrasciotta
     </Footer>
   );
 };
