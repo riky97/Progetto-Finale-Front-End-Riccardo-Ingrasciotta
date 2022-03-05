@@ -1,19 +1,23 @@
 import { Input, Space, List } from "antd";
 import React, { useEffect, useState } from "react";
 
-import AnimeCard from "../card/AnimeCard";
 import AnimeCardGenre from "../card/AnimeCardGenre";
 import useWindowDimensions from "../shared/UseWindowDimensions";
 import "./search.css";
 
-import AllAnimeList from "../allAnimeList/AllAnimeList";
+//API
+import { getAnimeSearch } from "../../api/search/getAnimeSearch";
+
 const { Search } = Input;
 
 const AnimeSearch = () => {
+  const [title, setTitle] = useState("");
+  const [animeSearch, setAnimeSearch] = useState([]);
+  const [loading, setLoading] = useState(false);
   const { height, width } = useWindowDimensions();
   const page = (width) => {
     let numPagination;
-    let countPageSize;
+    let countPageSize = 4;
 
     if (width < 576) {
       numPagination = 1 * countPageSize;
@@ -36,12 +40,31 @@ const AnimeSearch = () => {
     return numPagination;
   };
 
-  const onSearch = (value) => console.log(value);
+  const onSearch = (value) => {
+    value = value.toLowerCase();
+    if (value) {
+      setLoading(true);
+      setTitle(value);
+      const data = async () => {
+        try {
+          const search = await getAnimeSearch(value);
+          setLoading(false);
+          setAnimeSearch(search.results);
+        } catch {
+          setLoading(false);
+        }
+      };
+
+      data();
+    }
+  };
 
   return (
     <>
       <div className="section-title section-search">
-        <h3>Search</h3>
+        <h3>
+          {animeSearch.length} search: {title ? title : ""}
+        </h3>
         <Search
           className="anime-search"
           width={30}
@@ -54,7 +77,7 @@ const AnimeSearch = () => {
       <hr />
 
       <List
-        loading={false}
+        loading={loading}
         grid={{
           xs: 1,
           sm: 2,
@@ -64,12 +87,11 @@ const AnimeSearch = () => {
           xxl: 6,
         }}
         pagination={{
-          defaultCurrent: 1,
           position: "bottom",
           className: "pagination-home",
           pageSize: page(width),
         }}
-        dataSource={[]}
+        dataSource={animeSearch}
         renderItem={(rec) => (
           <List.Item style={{ justifyContent: "center", display: "flex" }}>
             <AnimeCardGenre key={rec.id} descriptionAnime={rec} />
