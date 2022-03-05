@@ -2,6 +2,9 @@
   padding: 2em !important;
   border-bottom: 0.2em solid #d84a1b !important;
 }
+.genre-list-anime div div {
+  border-bottom: none !important;
+}
 .genre-list-anime div div h4 {
   color: #fff;
   font-size: 1.4em;

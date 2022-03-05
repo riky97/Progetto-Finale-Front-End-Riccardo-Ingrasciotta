@@ -1,6 +1,6 @@
 /********SIDEBAR********/
 .anime-sidebar {
-  overflow: auto;
+  overflow: none;
   height: 100vh;
   position: fixed !important;
   left: 0;
@@ -8,6 +8,19 @@
   bottom: 0;
   background: #1a1a1a !important;
 }
+/* .anime-sidebar {
+  overflow: none;
+  height: 10vh;
+  position: fixed !important;
+  display: flex;
+  flex-direction: row;
+  min-width: 100vw;
+  z-index: 1000000;
+  left: 0;
+  bottom: 0;
+  background: #1a1a1a !important;
+} */
+
 .anime-sidebar div ul li a {
   color: #fff;
 }

@@ -1,8 +1,18 @@
 import React, { useState, useEffect } from "react";
 
-import { List, Avatar, Space } from "antd";
-import { MessageOutlined, LikeOutlined, StarOutlined } from "@ant-design/icons";
+import "./information.css";
 
+import { List, Avatar, Space } from "antd";
+import {
+  MessageOutlined,
+  HeartOutlined,
+  HeartFilled,
+  StarOutlined,
+  StarFilled,
+  DesktopOutlined,
+} from "@ant-design/icons";
+
+//API
 import { getInformationAnime } from "../../api/information/getInformationAnime";
 
 const InformationAnime = () => {
@@ -14,15 +24,14 @@ const InformationAnime = () => {
     };
     anime();
   }, []);
-  console.log(informationAnime);
 
   const IconText = ({ icon, text }) => (
-    <Space>
+    <Space style={{ color: "#fff" }}>
       {React.createElement(icon)}
       {text}
     </Space>
   );
-  const listData = [];
+
   return (
     <List
       itemLayout="vertical"
@@ -33,18 +42,19 @@ const InformationAnime = () => {
           key={item.title}
           actions={[
             <IconText
-              icon={StarOutlined}
-              text="156"
+              icon={StarFilled}
+              text={item.score ? item.score : "No score"}
               key="list-vertical-star-o"
             />,
+
             <IconText
-              icon={LikeOutlined}
-              text="156"
+              icon={HeartFilled}
+              text={item.favorites ? item.favorites : "No likes"}
               key="list-vertical-like-o"
             />,
             <IconText
-              icon={MessageOutlined}
-              text="2"
+              icon={DesktopOutlined}
+              text={item.episodes ? item.episodes + " ep" : "0 ep"}
               key="list-vertical-message"
             />,
           ]}
@@ -53,7 +63,20 @@ const InformationAnime = () => {
           }
         >
           <List.Item.Meta title={item.title} description={item.description} />
-          {item.synopsis}
+          <div className="box-information-anime" style={{}}>
+            <h4>
+              <b>Synopsis</b>
+            </h4>
+
+            {item.synopsis}
+          </div>
+
+          <div className="box-information-anime box2">
+            <h4>
+              <b>Background</b>
+            </h4>
+            {item.background}
+          </div>
         </List.Item>
       )}
     />

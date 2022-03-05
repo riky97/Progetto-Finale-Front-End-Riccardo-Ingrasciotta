@@ -1,0 +1,40 @@
+.ant-list-item-meta-content {
+  border-bottom: 2px solid #d84a1b;
+}
+
+.ant-list-item-meta-title {
+  color: #d84a1b !important;
+  font-size: 1.6rem !important;
+  text-transform: uppercase;
+}
+
+.ant-list-item-main:nth-child(1) {
+  color: #fff !important;
+  font-size: 1rem;
+}
+
+.box-information-anime {
+  background-color: #1a1a1a;
+  padding: 1em;
+  box-shadow: 3px 5px 3px rgba(27, 27, 27, 0.6);
+}
+.box-information-anime h4 {
+  color: aqua;
+  text-transform: uppercase;
+}
+.box2 {
+  margin-top: 1em;
+}
+
+.anticon-star svg {
+  color: yellow;
+}
+.anticon-heart svg {
+  color: red;
+}
+.anticon-desktop {
+  color: aqua;
+}
+.ant-space-item {
+  font-size: 1.4em;
+}
