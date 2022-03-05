@@ -4,6 +4,7 @@ export const getPathName = () => {
   const href = window.location.href;
   const split = href.split("/");
   const pathSplit2 = split[split.length - 2];
+  console.log(pathSplit2);
   let path = "";
   if (pathSplit2 === "information") {
     path = pathSplit2;
