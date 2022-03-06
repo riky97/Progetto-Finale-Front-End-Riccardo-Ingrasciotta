@@ -27,7 +27,7 @@ const RouterHome = () => {
     const anime = async () => {
       const res = await getScheduleAnimeToday();
       const today = getTodayDay();
-      setScheduleAnimeToday(res[today]);
+      setScheduleAnimeToday(res[today].slice(0, 10));
     };
     anime();
   }, []);

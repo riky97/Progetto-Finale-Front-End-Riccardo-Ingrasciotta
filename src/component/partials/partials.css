@@ -34,6 +34,7 @@
   border-right: 5px solid #d84a1b !important;
 }
 
+/*******ANIMESIDEBAR BOTTOM************/
 .anime-sidebar-bottom {
   overflow: hidden;
   background: #1a1a1a !important;
@@ -43,7 +44,7 @@
   z-index: 10000;
   border-top-right-radius: 1em;
   border-top-left-radius: 1em;
-  padding: 0.8em;
+  padding: 0.2em;
 }
 
 .anime-sidebar-bottom .ant-layout-sider-children .logo {
@@ -93,4 +94,8 @@
   text-align: center;
   color: #fff !important;
   background-color: #1a1a1a !important;
+}
+
+.anime-footer-bottom {
+  margin-bottom: 52px !important;
 }
