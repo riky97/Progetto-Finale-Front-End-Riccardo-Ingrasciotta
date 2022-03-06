@@ -26,6 +26,9 @@
   padding: 24px;
   background: #030303;
 }
+.site-layout-content-mobile {
+  padding: 6px;
+}
 
 .section-title {
   width: 100%;

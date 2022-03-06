@@ -60,8 +60,12 @@ function App() {
               <p>Today's home</p>
             </Breadcrumb.Item>
           </Breadcrumb>
-          <hr />
-          <div className="site-layout-content">
+          <hr />`
+          <div
+            className={`site-layout-content ${
+              width <= 768 ? "site-layout-content-mobile" : ""
+            }`}
+          >
             <RouterHome />
             <Router>
               <Routes>
