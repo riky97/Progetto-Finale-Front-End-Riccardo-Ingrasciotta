@@ -10,7 +10,7 @@ export const getListAnimeGenre = () => {
       url: `https://jikan1.p.rapidapi.com/genre/anime/${genre}/1`,
       headers: {
         "x-rapidapi-host": "jikan1.p.rapidapi.com",
-        "x-rapidapi-key": "02981a4988msh9df5c33d8f59e71p1dafacjsnd9ae58ff2120",
+        "x-rapidapi-key": process.env.REACT_API_KEY,
       },
     };
     const response = await axios.request(options);

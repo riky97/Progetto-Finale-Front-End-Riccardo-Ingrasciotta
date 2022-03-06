@@ -1,5 +1,3 @@
-import React from "react";
-
 export const getPathName = () => {
   const href = window.location.href;
   const split = href.split("/");

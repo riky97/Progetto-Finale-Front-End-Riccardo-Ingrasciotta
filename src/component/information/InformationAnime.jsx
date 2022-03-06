@@ -68,14 +68,14 @@ const InformationAnime = () => {
               <b>Synopsis</b>
             </h4>
 
-            {item.synopsis}
+            {item.synopsis ? item.synopsis : "No synopsis"}
           </div>
 
           <div className="box-information-anime box2">
             <h4>
               <b>Background</b>
             </h4>
-            {item.background}
+            {item.background ? item.background : "No background"}
           </div>
         </List.Item>
       )}
