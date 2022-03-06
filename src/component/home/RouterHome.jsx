@@ -12,6 +12,7 @@ import { getScheduleAnimeToday } from "../../api/home/getScheduleAnimeToday";
 //COMPONENT
 import ViewListAnime from "./ViewListAnime";
 import CarouselAnime from "./CarouselAnime";
+import useWindowDimensions from "../shared/UseWindowDimensions";
 
 //SHARED
 import { getTodayDay } from "../shared/getTodayDay";
@@ -21,13 +22,19 @@ const RouterHome = () => {
   const [topAnimeUpcoming, setTopAnimeUpcoming] = useState([]);
   const [topAnimeTV, setTopAnimeTV] = useState([]);
   const [topAnimeMovie, setTopAnimeMovie] = useState([]);
+  const { height, width } = useWindowDimensions();
 
   //schedule
   useEffect(() => {
     const anime = async () => {
       const res = await getScheduleAnimeToday();
       const today = getTodayDay();
-      setScheduleAnimeToday(res[today].slice(0, 10));
+
+      setScheduleAnimeToday(res[today]);
+
+      // setScheduleAnimeToday(res[today].slice(0, 10));
+
+      // setScheduleAnimeToday(res[today].slice(0, 15));
     };
     anime();
   }, []);
@@ -66,7 +73,11 @@ const RouterHome = () => {
           element={
             <>
               <CarouselAnime
-                animeList={scheduleAnimeToday}
+                animeList={
+                  width > 768
+                    ? scheduleAnimeToday.slice(0, 20)
+                    : scheduleAnimeToday.slice(0, 10)
+                }
                 todayDay={getTodayDay()}
               />
               <hr />
