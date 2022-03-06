@@ -28,11 +28,7 @@ export const getScheduleAnimeToday = () => {
   const getAnime = async () => {
     const options = {
       method: "GET",
-      url: `https://jikan1.p.rapidapi.com/schedule/${getTodayDay()}`,
-      headers: {
-        "x-rapidapi-host": "jikan1.p.rapidapi.com",
-        "x-rapidapi-key": process.env.REACT_API_KEY,
-      },
+      url: `https://api.jikan.moe/v3/schedule/${getTodayDay()}`,
     };
     const response = await axios.request(options);
     const data = response.data;
