@@ -29,12 +29,7 @@ const RouterHome = () => {
     const anime = async () => {
       const res = await getScheduleAnimeToday();
       const today = getTodayDay();
-
-      setScheduleAnimeToday(res[today]);
-
-      // setScheduleAnimeToday(res[today].slice(0, 10));
-
-      // setScheduleAnimeToday(res[today].slice(0, 15));
+      setScheduleAnimeToday(res[today].slice(0, 10));
     };
     anime();
   }, []);
@@ -73,11 +68,7 @@ const RouterHome = () => {
           element={
             <>
               <CarouselAnime
-                animeList={
-                  width > 768
-                    ? scheduleAnimeToday.slice(0, 20)
-                    : scheduleAnimeToday.slice(0, 10)
-                }
+                animeList={scheduleAnimeToday}
                 todayDay={getTodayDay()}
               />
               <hr />
