@@ -26,8 +26,8 @@
 /*SM*/
 @media (width >= 576px) {
   .carousel-anime {
-    margin-left: 0;
-    margin-right: 0;
+    margin-left: 2em;
+    margin-right: 2em;
   }
 }
 /*MD*/
@@ -40,15 +40,15 @@
 /*LG*/
 @media (width >= 992px) {
   .carousel-anime {
-    margin-left: 4em;
-    margin-right: 4em;
+    margin-left: 10em;
+    margin-right: 10em;
   }
 }
 /*XL*/
 @media (width >= 1200px) {
   .carousel-anime {
-    margin-left: 6em;
-    margin-right: 6em;
+    margin-left: 15em;
+    margin-right: 15em;
   }
   .image-carousel {
     width: 100%;
@@ -63,7 +63,7 @@
   }
   .image-carousel {
     width: 100%;
-    height: 45vh;
+    height: 50vh;
   }
 }
 

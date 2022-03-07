@@ -84,6 +84,7 @@ function App() {
             </Router>
           </div>
         </Content>
+        <hr />
         <AnimeFooter />
       </Layout>
     </Layout>
