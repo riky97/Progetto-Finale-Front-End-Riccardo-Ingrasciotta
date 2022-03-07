@@ -2,6 +2,8 @@ import React from "react";
 
 export const getDescriprionHeader = (path) => {
   //const path = localStorage.getItem("path");
+  let split = window.location.href.split("/");
+  const topanime = split[split.length - 1];
   let descr = "";
   if (path === "home") {
     descr = "Scroll down and check out today's trending anime and releases !";
@@ -18,7 +20,7 @@ export const getDescriprionHeader = (path) => {
   }
 
   if (path === "topanime") {
-    descr = "Discover all topanime by category !";
+    descr = `Discover all topanime by category: ${topanime} !`;
   }
   return descr;
 };

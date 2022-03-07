@@ -26,6 +26,9 @@
   background-color: transparent !important;
   color: #fff;
 }
+.anime-search span span input::placeholder {
+  color: #fff6;
+}
 .anime-search span span input:hover {
   border-color: #d84a1b !important;
 }

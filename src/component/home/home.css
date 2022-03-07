@@ -20,6 +20,11 @@
   color: #fff6;
   padding-left: 3em;
 }
+@media (max-width: 768px) {
+  .breadcrump p {
+    padding-left: 24px;
+  }
+}
 
 .site-layout-content {
   min-height: 90vh;
