@@ -54,8 +54,13 @@ function App() {
             <Breadcrumb.Item className="breadcrump">
               <h2>
                 Welcome Visitor{" "}
-                <SmileOutlined
-                  style={{ fontSize: "1.4rem", color: "yellow" }}
+                <img
+                  src="https://img.icons8.com/emoji/32/000000/waving-hand-emoji.png"
+                  alt={
+                    <SmileOutlined
+                      style={{ fontSize: "1.4rem", color: "yellow" }}
+                    />
+                  }
                 />
               </h2>
               <p>{getDescriprionHeader(localStorage.getItem("path"))}</p>
