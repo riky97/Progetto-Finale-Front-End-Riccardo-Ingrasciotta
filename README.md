@@ -1,4 +1,4 @@
-# Progetto React di Riccardo Ingrasciotta
+# Progetto Finale Front End di Riccardo Ingrasciotta
 
 <div id="top"></div>
 <br/>
