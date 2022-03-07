@@ -67,7 +67,9 @@ const AnimeSearch = () => {
   useEffect(() => {
     const setItem = () => {
       if (animeSearch.length === 0) {
-        setAnimeSearch(JSON.parse(localStorage.getItem("searchObject")));
+        if (JSON.parse(localStorage.getItem("searchObject")) !== null) {
+          setAnimeSearch(JSON.parse(localStorage.getItem("searchObject")));
+        }
       }
       if (title === "") {
         setTitle(localStorage.getItem("searchTitle"));
