@@ -16,5 +16,9 @@ export const getDescriprionHeader = (path) => {
   if (path === "information") {
     descr = "Description anime !";
   }
+
+  if (path === "topanime") {
+    descr = "Discover all topanime by category !";
+  }
   return descr;
 };

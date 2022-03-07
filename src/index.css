@@ -4,6 +4,41 @@
   box-sizing: border-box;
 }
 
+/*********FONT************/
+
+@font-face {
+  font-family: Title;
+  src: url("./fonts/SofiaPro-Bold.ttf") format("truetype");
+}
+@font-face {
+  font-family: Paragraph;
+  src: url("./fonts/Mark-Medium.ttf") format("truetype");
+}
+
+@font-face {
+  font-family: Link;
+  src: url("./fonts/Mark-Bold.ttf") format("truetype");
+}
+
+h1,
+h2,
+h3,
+h4,
+h5 {
+  font-family: Title !important;
+}
+
+p,
+pre,
+div,
+span {
+  font-family: Paragraph !important;
+}
+
+a {
+  font-family: Link !important;
+}
+
 hr {
   height: 3em !important;
   border: none !important;
