@@ -17,6 +17,7 @@ import AnimeSearch from "./component/search/AnimeSearch";
 //SHARED
 import { getPathName } from "./component/shared/getPathName";
 import useWindowDimensions from "./component/shared/UseWindowDimensions";
+import { getDescriprionHeader } from "./component/shared/getDescriprionHeader";
 
 //ANTD
 import { Layout, Menu, Breadcrumb } from "antd";
@@ -57,7 +58,7 @@ function App() {
                   style={{ fontSize: "1.4rem", color: "yellow" }}
                 />
               </h2>
-              <p>Today's home</p>
+              <p>{getDescriprionHeader(localStorage.getItem("path"))}</p>
             </Breadcrumb.Item>
           </Breadcrumb>
           <hr />`

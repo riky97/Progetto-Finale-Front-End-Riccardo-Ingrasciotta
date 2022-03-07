@@ -44,33 +44,50 @@ const AnimeSearch = () => {
     value = value.toLowerCase();
     if (value) {
       setLoading(true);
-      setTitle(value);
+
       const data = async () => {
         try {
           const search = await getAnimeSearch(value);
           setLoading(false);
           setAnimeSearch(search.results);
+          setTitle(value);
+          localStorage.setItem("searchObject", JSON.stringify(search.results));
+          localStorage.setItem("searchTitle", value);
+          // window.location.href = "?search_anime=" + value;
         } catch {
           setLoading(false);
           setAnimeSearch("");
           value = "";
         }
       };
-
       data();
     }
   };
+
+  useEffect(() => {
+    const setItem = () => {
+      if (animeSearch.length === 0) {
+        setAnimeSearch(JSON.parse(localStorage.getItem("searchObject")));
+      }
+      if (title === "") {
+        setTitle(localStorage.getItem("searchTitle"));
+      }
+    };
+    setItem();
+  });
 
   return (
     <>
       <div className="section-title section-search">
         <h3>
-          {animeSearch.length} search: {title ? title : ""}
+          {animeSearch.length} search:{" "}
+          {title ? title : "No research carried out"}
         </h3>
         <Search
           className="anime-search"
+          allowClear
           width={30}
-          placeholder="input search text"
+          placeholder={title ? title : "Search anime..."}
           onSearch={onSearch}
           size="large"
           enterButton

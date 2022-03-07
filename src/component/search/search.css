@@ -16,16 +16,20 @@
 .anime-search {
   width: 25em !important;
 }
-.anime-search span input {
-  background-color: transparent;
+.anime-search span span {
+  background-color: transparent !important;
   border-radius: 10em;
-  border-color: #d84a1b;
+  border-color: #d84a1b !important;
   color: #fff;
 }
-.anime-search span input:hover {
+.anime-search span span input {
+  background-color: transparent !important;
+  color: #fff;
+}
+.anime-search span span input:hover {
   border-color: #d84a1b !important;
 }
-.anime-search span input:focus {
+.anime-search span span input:focus {
   border-color: #d84a1b !important;
 }
 .anime-search span span button {
@@ -38,4 +42,9 @@
 }
 .anime-search span span.ant-input-group-addon {
   background-color: #030303 !important;
+}
+
+.anime-search span span span.ant-input-suffix span.anticon-close-circle svg {
+  color: #d84a1b !important;
+  font-size: 1.2em !important;
 }

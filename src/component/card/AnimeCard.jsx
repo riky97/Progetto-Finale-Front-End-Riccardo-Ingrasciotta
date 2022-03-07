@@ -2,11 +2,6 @@ import React from "react";
 import { Card, Tooltip } from "antd";
 import parse from "html-react-parser";
 import "./card.css";
-import {
-  EditOutlined,
-  EllipsisOutlined,
-  SettingOutlined,
-} from "@ant-design/icons";
 
 const { Meta } = Card;
 
