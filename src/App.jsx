@@ -42,7 +42,8 @@ function App() {
         <Header className="site-layout-background">
           <h1>ANIME LIST</h1>
         </Header>
-        <hr />
+        {width <= 768 ? "" : <hr />}
+
         <Content
           style={
             width <= 768

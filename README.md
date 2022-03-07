@@ -9,7 +9,7 @@
     <img src="./public/images/Readme/logo_screenshot.PNG" alt="Logo" width="120" height="180">
   </a>
 
-<h3 align="center">Vegetarian Recipe</h3>
+<h3 align="center">Anime List</h3>
 
   <p align="center">
     <a href="https://github.com/riky97/Progetto-Finale-Front-End-Riccardo-Ingrasciotta"><strong>Explore the docs »</strong></a>
@@ -50,8 +50,8 @@
 
 ## About The Project
 
-[![Product Name Screen Shot][product-screenshot]](https://621c995dd9ab74789d50e574--my-vegetarian-recipe-app.netlify.app/)
-[![Product Name Screen Shot][product-screenshot2]](https://621c995dd9ab74789d50e574--my-vegetarian-recipe-app.netlify.app/)
+[![Product Name Screen Shot][product-screenshot]](https://my-anime-list.netlify.app)
+[![Product Name Screen Shot][product-screenshot2]](https://my-anime-list.netlify.app)
 
 ### Built With
 
@@ -106,7 +106,7 @@ Thanks to a search box you can search for all the recipes based on the title or 
 Clicking on a recipe a page will appear showing all the information about that recipe.
 <br/>
 To test the app:
-_[follow this link](https://621c995dd9ab74789d50e574--my-vegetarian-recipe-app.netlify.app/)_
+_[follow this link](https://my-anime-list.netlify.app)_
 
 <p align="right"><a href="#top"><img src="img/topArrow_readme.png" alt="Back to top" width="30" height="30"></a></p>
 
