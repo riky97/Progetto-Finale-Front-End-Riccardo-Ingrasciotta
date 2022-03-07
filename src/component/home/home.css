@@ -6,8 +6,10 @@
   margin: 16px;
   background: rgba(255, 255, 255, 0.2);
   color: #fff;
+  display: grid;
+  place-items: center;
 }
-.site-layout-background {
+site-layout-background {
   background: #030303 !important;
 }
 .breadcrump h2 {

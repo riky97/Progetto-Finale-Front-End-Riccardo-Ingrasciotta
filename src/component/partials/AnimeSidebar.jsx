@@ -14,7 +14,7 @@ const AnimeSidebar = ({ pos }) => {
   const { height, width } = useWindowDimensions();
   return (
     <Sider className={pos}>
-      <div className="logo" />
+      <div className="logo">ANIME LIST</div>
       <Menu mode="inline" selectedKeys={localStorage.getItem("path")}>
         <Menu.Item key="home">
           {width > 768 ? (
