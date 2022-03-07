@@ -101,10 +101,10 @@ A local copy will be created that you can modify as you wish.
 
 ## Usage
 
-The project is based on the research of vegetarian recipes.
-The top 100 recipes based on likes are shown on the homepage.
-Thanks to a search box you can search for all the recipes based on the title or ingredient you prefer.
-Clicking on a recipe a page will appear showing all the information about that recipe.
+The project is based on the search for all anime.
+The home shows the top anime and the anime of the day.
+All genres are displayed on the page dedicated to genres. clicking on one of them will display a page with all the anime related to that genre.
+On the search page you can search for all the anime by entering their title in the search box
 <br/>
 To test the app:
 _[follow this link](https://my-anime-list.netlify.app)_
