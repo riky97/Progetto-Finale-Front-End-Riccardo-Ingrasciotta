@@ -20,6 +20,11 @@
   src: url("./fonts/Mark-Bold.ttf") format("truetype");
 }
 
+@font-face {
+  font-family: Logo;
+  src: url("./fonts/CHANEY-Extended.otf") format("truetype");
+}
+
 h1,
 h2,
 h3,
@@ -37,6 +42,10 @@ span {
 
 a {
   font-family: Link !important;
+}
+
+.site-layout-background h1 {
+  font-family: Logo !important;
 }
 
 hr {

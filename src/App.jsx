@@ -39,10 +39,10 @@ function App() {
         className="layout"
         style={width <= 768 ? { marginLeft: 0 } : { marginLeft: 200 }}
       >
-        {/* <Header
-          className="site-layout-background"
-          style={{ padding: 0 }}
-        ></Header> */}
+        <Header className="site-layout-background">
+          <h1>ANIME LIST</h1>
+        </Header>
+        <hr />
         <Content
           style={
             width <= 768
