@@ -60,7 +60,6 @@
 - [CSS](https://www.w3schools.com/css/)
 - [Javascript](https://www.javascript.com/)
 - [React](https://reactjs.org/)
-- [Redux](https://redux.js.org/)
 - [Antd](https://ant.design/)
 
 <p align="right"><a href="#top"><img src="img/topArrow_readme.png" alt="Back to top" width="30" height="30"></a></p>
