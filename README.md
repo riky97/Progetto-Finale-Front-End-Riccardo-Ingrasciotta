@@ -6,7 +6,7 @@
 <br />
 <div align="center">
   <a href="https://github.com/riky97/Progetto-Finale-Front-End-Riccardo-Ingrasciotta">
-    <img src="./public/images/Readme/logo_screenshot.PNG" alt="Logo" width="120" height="180">
+    <img src="./public/images/readme/logo_screenshot.PNG" alt="Logo" width="120" height="180">
   </a>
 
 <h3 align="center">Anime List</h3>
@@ -52,6 +52,7 @@
 
 [![Product Name Screen Shot][product-screenshot]](https://my-anime-list.netlify.app)
 [![Product Name Screen Shot][product-screenshot2]](https://my-anime-list.netlify.app)
+[![Product Name Screen Shot][product-screenshot3]](https://my-anime-list.netlify.app)
 
 ### Built With
 
@@ -139,5 +140,6 @@ Project Link: [https://github.com/riky97/Progetto-Finale-Front-End-Riccardo-Ingr
 
 <!-- MARKDOWN LINKS & IMAGES -->
 
-[product-screenshot]: ./public/images/Readme/home_screenshot.PNG
-[product-screenshot2]: ./public/images/Readme/information_screenshot.PNG
+[product-screenshot]: ./public/images/readme/home_screenshot.PNG
+[product-screenshot2]: ./public/images/readme/information_screenshot.PNG
+[product-screenshot3]: ./public/images/readme/search_screenshot.PNG
