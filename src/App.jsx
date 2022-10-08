@@ -20,12 +20,12 @@ import useWindowDimensions from "./component/shared/UseWindowDimensions";
 import { getDescriprionHeader } from "./component/shared/getDescriprionHeader";
 
 //ANTD
-import { Layout, Menu, Breadcrumb } from "antd";
+import { Layout, Breadcrumb } from "antd";
 import { SmileOutlined } from "@ant-design/icons";
-const { Header, Content, Footer, Sider } = Layout;
+const { Header, Content } = Layout;
 
 function App() {
-  const { height, width } = useWindowDimensions();
+  const { width } = useWindowDimensions();
   getPathName();
   return (
     <Layout hasSider>
@@ -43,7 +43,6 @@ function App() {
           <h1>ANIME LIST</h1>
         </Header>
         {width <= 768 ? "" : <hr />}
-
 
         <Content
           style={
