@@ -9,7 +9,7 @@ export const getAllAnimeLIst = () => {
     }
     const options = {
       method: "GET",
-      url: `https://api.jikan.moe/v3/top/anime/1/${path}`,
+      url: `https://api.jikan.moe/v4/top/anime/1/${path}`,
     };
     const response = await axios.request(options);
     const data = response.data;

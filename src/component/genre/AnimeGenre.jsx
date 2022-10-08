@@ -1,8 +1,13 @@
 import React from "react";
+
+//CSS
 import "./genre.css";
+
+//COMPONENT
 import { List, message, Avatar } from "antd";
 import { ArrowRightOutlined } from "@ant-design/icons";
 
+//contants
 import { getAllGenre } from "./getAllGenre";
 
 const AnimeGenre = () => {

@@ -18,9 +18,9 @@ const AnimeSidebar = ({ pos }) => {
       <Menu mode="inline" selectedKeys={localStorage.getItem("path")}>
         <Menu.Item key="home">
           {width > 768 ? (
-            <a href="/home">Home</a>
+            <a href="/">Home</a>
           ) : (
-            <a href="/home">
+            <a href="/">
               <HomeFilled />
             </a>
           )}
