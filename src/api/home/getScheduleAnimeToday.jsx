@@ -28,7 +28,7 @@ export const getScheduleAnimeToday = () => {
   const getAnime = async () => {
     const options = {
       method: "GET",
-      url: `https://api.jikan.moe/v3/schedule/${getTodayDay()}`,
+      url: `https://api.jikan.moe/v4/schedule/${getTodayDay()}`,
     };
     const response = await axios.request(options);
     const data = response.data;

@@ -4,23 +4,18 @@ import axios from "axios";
 export const getListAnimeGenre = () => {
   const getAnime = async () => {
     const genre = localStorage.getItem("genre");
+    try {
+      const options = {
+        method: "GET",
+        url: `https://api.jikan.moe/v4/genre/anime/${genre}/1`,
+      };
+      const response = await axios.request(options);
+      const data = response.data;
 
-    // const options = {
-    //   method: "GET",
-    //   url: `https://jikan1.p.rapidapi.com/genre/anime/${genre}/1`,
-    //   headers: {
-    //     "x-rapidapi-host": "jikan1.p.rapidapi.com",
-    //     "x-rapidapi-key": process.env.REACT_API_KEY,
-    //   },
-    // };
-    const options = {
-      method: "GET",
-      url: `https://api.jikan.moe/v3/genre/anime/${genre}/1`,
-    };
-    const response = await axios.request(options);
-    const data = response.data;
-
-    return data;
+      return data;
+    } catch (error) {
+      console.log("error :>> ", error);
+    }
   };
   return getAnime();
 };

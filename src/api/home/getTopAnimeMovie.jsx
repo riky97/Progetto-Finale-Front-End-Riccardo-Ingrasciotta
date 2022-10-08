@@ -12,7 +12,7 @@ export const getTopAnimeMovie = () => {
     // };
     const options = {
       method: "GET",
-      url: `https://api.jikan.moe/v3/top/anime/1/movie`,
+      url: `https://api.jikan.moe/v4/top/anime/1/movie`,
     };
     const response = await axios.request(options);
     const data = response.data;

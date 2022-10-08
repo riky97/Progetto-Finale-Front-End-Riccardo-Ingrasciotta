@@ -4,10 +4,8 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { useState, useEffect } from "react";
 
 //API
-import { getTopAnimeUpcoming } from "../../api/home/getTopAnimeUpcoming";
-import { getTopAnimeTV } from "../../api/home/getTopAnimeTV";
-import { getTopAnimeMovie } from "../../api/home/getTopAnimeMovie";
 import { getScheduleAnimeToday } from "../../api/home/getScheduleAnimeToday";
+import axios from "axios";
 
 //COMPONENT
 import ViewListAnime from "./ViewListAnime";
@@ -21,115 +19,109 @@ const RouterHome = () => {
   const [scheduleAnimeToday, setScheduleAnimeToday] = useState([]);
   const [topAnimeUpcoming, setTopAnimeUpcoming] = useState([]);
   const [topAnimeTV, setTopAnimeTV] = useState([]);
-  const [topAnimeMovie, setTopAnimeMovie] = useState([]);
+  const [topAnimeRecommended, setTopAnimeRecommended] = useState([]);
   const { height, width } = useWindowDimensions();
 
-  //schedule
-  useEffect(() => {
-    const anime = async () => {
-      const res = await getScheduleAnimeToday();
-      const today = getTodayDay();
-      setScheduleAnimeToday(res[today].slice(0, 10));
-    };
-    anime();
-  }, []);
+  // //schedule
+  // useEffect(() => {
+  //   const anime = async () => {
+  //     const res = await getScheduleAnimeToday();
+  //     const today = getTodayDay();
+  //     setScheduleAnimeToday(res[today].slice(0, 10));
+  //   };
+  //   anime();
+  // }, []);
 
   //upcoming
   useEffect(() => {
-    const anime = async () => {
-      const res = await getTopAnimeUpcoming();
-      setTopAnimeUpcoming(res.top.slice(0, 20));
-    };
-    anime();
+    getTopAnimeUpcoming();
+    getTopAnimeTV();
+    getTopAnimeMovie();
   }, []);
-  //TV
-  useEffect(() => {
-    const anime = async () => {
-      const res = await getTopAnimeTV();
-      setTopAnimeTV(res.top.slice(0, 10));
+
+  //MOVIES
+  const getTopAnimeMovie = async () => {
+    const options = {
+      method: "GET",
+      url: `https://api.jikan.moe/v4/top/characters`,
     };
-    anime();
-  }, []);
-  //movies
-  useEffect(() => {
-    const anime = async () => {
-      const res = await getTopAnimeMovie();
-      setTopAnimeMovie(res.top.slice(0, 10));
+    try {
+      const response = await axios.request(options);
+      const { data } = response.data;
+      setTopAnimeRecommended(data);
+    } catch (error) {
+      console.log("error :>> ", error);
+    }
+  };
+
+  //TOP ANIME TV
+  const getTopAnimeTV = async () => {
+    const options = {
+      method: "GET",
+      url: `https://api.jikan.moe/v4/top/anime`,
     };
-    anime();
-  }, []);
+    try {
+      const response = await axios.request(options);
+      const { data } = response.data;
+      setTopAnimeTV(data);
+    } catch (error) {
+      console.log("error :>> ", error);
+    }
+  };
+
+  //TOP ANIME UPCOMING
+  const getTopAnimeUpcoming = async () => {
+    const options = {
+      method: "GET",
+      url: `https://api.jikan.moe/v4/seasons/upcoming`,
+    };
+    try {
+      const response = await axios.request(options);
+      const { data } = response.data;
+      setTopAnimeUpcoming(data);
+    } catch (error) {
+      console.log("error :>> ", error);
+    }
+  };
+
+  const Home = () => {
+    return (
+      <>
+        <CarouselAnime
+          animeList={scheduleAnimeToday}
+          todayDay={getTodayDay()}
+        />
+        <hr />
+        <ViewListAnime
+          path="/topanime/upcoming"
+          titleSection={`top ${topAnimeUpcoming.length} anime/movie upcoming`}
+          pageSizeAnime={1}
+          information={topAnimeUpcoming}
+        />
+        <hr />
+        <ViewListAnime
+          path="/topanime/anime"
+          titleSection={`top ${topAnimeTV.length} anime`}
+          pageSizeAnime={1}
+          information={topAnimeTV}
+        />
+        <hr />
+        <ViewListAnime
+          path="/topanime/characters"
+          titleSection={`top ${topAnimeRecommended.length} characters`}
+          pageSizeAnime={1}
+          information={topAnimeRecommended}
+        />
+        <hr />
+      </>
+    );
+  };
 
   return (
     <Router>
       <Routes>
-        <Route
-          exact
-          path="/"
-          element={
-            <>
-              <CarouselAnime
-                animeList={scheduleAnimeToday}
-                todayDay={getTodayDay()}
-              />
-              <hr />
-              <ViewListAnime
-                path="/topanime/upcoming"
-                titleSection={`top ${topAnimeUpcoming.length} anime/movie upcoming`}
-                pageSizeAnime={1}
-                information={topAnimeUpcoming}
-              />
-              <hr />
-              <ViewListAnime
-                path="/topanime/anime"
-                titleSection={`top ${topAnimeTV.length} anime`}
-                pageSizeAnime={1}
-                information={topAnimeTV}
-              />
-              <hr />
-              <ViewListAnime
-                path="/topanime/movie"
-                titleSection={`top ${topAnimeMovie.length} movie`}
-                pageSizeAnime={1}
-                information={topAnimeMovie}
-              />
-              <hr />
-            </>
-          }
-        />
-        <Route
-          exact
-          path="/home"
-          element={
-            <>
-              <CarouselAnime
-                animeList={scheduleAnimeToday}
-                todayDay={getTodayDay()}
-              />
-              <hr />
-              <ViewListAnime
-                path="/topanime/upcoming"
-                titleSection={`top ${topAnimeUpcoming.length} anime/movie upcoming`}
-                pageSizeAnime={1}
-                information={topAnimeUpcoming}
-              />
-              <hr />
-              <ViewListAnime
-                path="/topanime/anime"
-                titleSection={`top ${topAnimeTV.length} anime`}
-                pageSizeAnime={1}
-                information={topAnimeTV}
-              />
-              <hr />
-              <ViewListAnime
-                path="/topanime/movie"
-                titleSection={`top ${topAnimeMovie.length} movie`}
-                pageSizeAnime={1}
-                information={topAnimeMovie}
-              />
-              <hr />
-            </>
-          }
-        />
+        <Route exact index element={<Home />} />
+        {/* <Route path="*" element={<Home />} /> */}
       </Routes>
     </Router>
   );

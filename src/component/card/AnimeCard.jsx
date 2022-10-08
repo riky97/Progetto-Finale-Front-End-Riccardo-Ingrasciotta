@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Card, Tooltip } from "antd";
 import parse from "html-react-parser";
 import "./card.css";
@@ -6,6 +6,10 @@ import "./card.css";
 const { Meta } = Card;
 
 const AnimeCard = ({ descriptionAnime }) => {
+  // useEffect(() => {
+  //   console.log("rank :>> ", rank);
+  // }, []);
+
   return (
     <a href={`/information/${descriptionAnime.mal_id}`}>
       <Card
@@ -16,7 +20,7 @@ const AnimeCard = ({ descriptionAnime }) => {
           <img
             className="anime-card-img"
             alt="example"
-            src={descriptionAnime.image_url}
+            src={descriptionAnime?.images?.jpg?.image_url}
           />
         }
       >
@@ -26,10 +30,16 @@ const AnimeCard = ({ descriptionAnime }) => {
               placement="topLeft"
               color={"#d84a1b"}
               key={"#d84a1b"}
-              title={descriptionAnime.title}
+              title={descriptionAnime?.name || descriptionAnime.title}
             >
-              {parse(`<b style="color:#d84a1b">${descriptionAnime.rank}.</b>`)}
-              {`  ${descriptionAnime.title}`}
+              {parse(
+                `<b style="color:#d84a1b">${
+                  descriptionAnime?.rank
+                    ? descriptionAnime?.rank
+                    : descriptionAnime?.favorites
+                }.</b>`
+              )}
+              {`  ${descriptionAnime?.name || descriptionAnime.title}`}
             </Tooltip>
           }
           description={
