@@ -1,7 +1,12 @@
 import React, { useState, useEffect } from "react";
 
+//API
+import axios from "axios";
+
+//CSS
 import "./information.css";
 
+//COMPONENTS
 import { List, Avatar, Space } from "antd";
 import {
   MessageOutlined,
@@ -12,18 +17,29 @@ import {
   DesktopOutlined,
 } from "@ant-design/icons";
 
-//API
-import { getInformationAnime } from "../../api/information/getInformationAnime";
-
 const InformationAnime = () => {
   const [informationAnime, setInformationAnime] = useState([]);
   useEffect(() => {
-    const anime = async () => {
-      const res = await getInformationAnime();
-      setInformationAnime([res]);
-    };
-    anime();
+    getInformationAnime();
   }, []);
+
+  const getInformationAnime = async () => {
+    const href = window.location.href;
+    const split = href.split("/");
+    const id_anime = split[split.length - 1];
+    const options = {
+      method: "GET",
+      url: `https://api.jikan.moe/v4/anime/${id_anime}`,
+    };
+    try {
+      const response = await axios.request(options);
+      const { data } = response.data;
+      console.log("data :>> ", data);
+      setInformationAnime([data]);
+    } catch (error) {
+      console.log("error :>> ", error);
+    }
+  };
 
   const IconText = ({ icon, text }) => (
     <Space style={{ color: "#fff" }}>
@@ -59,11 +75,16 @@ const InformationAnime = () => {
             />,
           ]}
           extra={
-            <img width={300} height={420} alt="logo" src={item.image_url} />
+            <img
+              width={300}
+              height={420}
+              alt="logo"
+              src={item?.images?.jpg?.image_url}
+            />
           }
         >
           <List.Item.Meta title={item.title} description={item.description} />
-          <div className="box-information-anime" style={{}}>
+          <div className="box-information-anime">
             <h4>
               <b>Synopsis</b>
             </h4>

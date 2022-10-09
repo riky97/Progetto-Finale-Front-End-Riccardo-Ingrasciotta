@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+
 import { List } from "antd";
 
 import AnimeCard from "../card/AnimeCard";
@@ -10,6 +11,7 @@ import { getAllAnimeLIst } from "../../api/allAnime/getAllAnimeLIst";
 import { getListAnimeGenre } from "../../api/genre/getListAnimeGenre";
 
 import "../home/home.css";
+import axios from "axios";
 
 const AllAnimeList = ({ type }) => {
   const [generalTopAnime, setgeneralTopAnime] = useState([]);
@@ -30,20 +32,51 @@ const AllAnimeList = ({ type }) => {
   //const path = split[split.length - 1];
 
   useEffect(() => {
-    const anime = async () => {
-      const path = localStorage.getItem("path");
-      if (path === "topanime") {
-        const res = await getAllAnimeLIst();
-        setgeneralTopAnime(res.top);
-      }
-      if (path === "genre") {
-        const res = await getListAnimeGenre();
-        setgeneralGenreAnime(res.anime);
-        setNameGenre(res.mal_url.name);
-      }
-    };
-    anime();
+    const path = localStorage.getItem("path");
+    if (path === "topanime") {
+      setgeneralTopAnime(getAllAnimeLIst()?.top);
+    }
+    if (path === "genre") {
+      setgeneralGenreAnime(getListAnimeGenre()?.anime);
+      setNameGenre(getListAnimeGenre()?.mal_url.name);
+    }
   }, []);
+
+  const getAllAnimeLIst = async () => {
+    let more = localStorage.getItem("more");
+
+    if (more === "anime") {
+      more = "tv";
+    }
+    const options = {
+      method: "GET",
+      url: `https://api.jikan.moe/v4/top/anime/1/${more}`,
+    };
+    try {
+      const response = await axios.request(options);
+      const { data } = response.data;
+      console.log("data", data);
+      return data;
+    } catch (error) {
+      console.log("error :>> ", error);
+    }
+  };
+
+  const getListAnimeGenre = async () => {
+    const genre = localStorage.getItem("genre");
+    try {
+      const options = {
+        method: "GET",
+        url: `https://api.jikan.moe/v4/genre/anime/${genre}/1`,
+      };
+      const response = await axios.request(options);
+      const { data } = response.data;
+      console.log("data", data);
+      return data;
+    } catch (error) {
+      console.log("error :>> ", error);
+    }
+  };
 
   const page = (width) => {
     let numPagination;

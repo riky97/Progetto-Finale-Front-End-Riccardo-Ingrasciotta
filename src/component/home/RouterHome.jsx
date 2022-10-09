@@ -4,7 +4,6 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { useState, useEffect } from "react";
 
 //API
-import { getScheduleAnimeToday } from "../../api/home/getScheduleAnimeToday";
 import axios from "axios";
 
 //COMPONENT
@@ -12,8 +11,8 @@ import ViewListAnime from "./ViewListAnime";
 import CarouselAnime from "./CarouselAnime";
 import useWindowDimensions from "../shared/UseWindowDimensions";
 
-//SHARED
-import { getTodayDay } from "../shared/getTodayDay";
+//constant
+import { getTodayDay } from "../../utils/constant";
 
 const RouterHome = () => {
   const [scheduleAnimeToday, setScheduleAnimeToday] = useState([]);
@@ -22,24 +21,29 @@ const RouterHome = () => {
   const [topAnimeRecommended, setTopAnimeRecommended] = useState([]);
   const { height, width } = useWindowDimensions();
 
-  // //schedule
-  // useEffect(() => {
-  //   const anime = async () => {
-  //     const res = await getScheduleAnimeToday();
-  //     const today = getTodayDay();
-  //     setScheduleAnimeToday(res[today].slice(0, 10));
-  //   };
-  //   anime();
-  // }, []);
-
-  //upcoming
   useEffect(() => {
     getTopAnimeUpcoming();
     getTopAnimeTV();
-    getTopAnimeMovie();
+    // getTopAnimeMovie();
+    getScheduleAnimeToday();
   }, []);
 
-  //MOVIES
+  // SCHEDULE
+  const getScheduleAnimeToday = async () => {
+    const options = {
+      method: "GET",
+      url: `https://api.jikan.moe/v4/schedules?filter=${getTodayDay()}`,
+    };
+    try {
+      const response = await axios.request(options);
+      const { data } = response.data;
+      setScheduleAnimeToday(data);
+    } catch (error) {
+      console.log("error", error);
+    }
+  };
+
+  //CHARACTERS
   const getTopAnimeMovie = async () => {
     const options = {
       method: "GET",
@@ -106,24 +110,43 @@ const RouterHome = () => {
           information={topAnimeTV}
         />
         <hr />
-        <ViewListAnime
+        {/* <ViewListAnime
           path="/topanime/characters"
           titleSection={`top ${topAnimeRecommended.length} characters`}
           pageSizeAnime={1}
           information={topAnimeRecommended}
         />
-        <hr />
+        <hr /> */}
       </>
     );
   };
 
   return (
-    <Router>
-      <Routes>
-        <Route exact index element={<Home />} />
-        {/* <Route path="*" element={<Home />} /> */}
-      </Routes>
-    </Router>
+    <>
+      <CarouselAnime animeList={scheduleAnimeToday} todayDay={getTodayDay()} />
+      <hr />
+      <ViewListAnime
+        path="/topanime/upcoming"
+        titleSection={`top ${topAnimeUpcoming.length} anime/movie upcoming`}
+        pageSizeAnime={1}
+        information={topAnimeUpcoming}
+      />
+      <hr />
+      <ViewListAnime
+        path="/topanime/anime"
+        titleSection={`top ${topAnimeTV.length} anime`}
+        pageSizeAnime={1}
+        information={topAnimeTV}
+      />
+      <hr />
+      {/* <ViewListAnime
+        path="/topanime/characters"
+        titleSection={`top ${topAnimeRecommended.length} characters`}
+        pageSizeAnime={1}
+        information={topAnimeRecommended}
+      />
+      <hr /> */}
+    </>
   );
 };
 
