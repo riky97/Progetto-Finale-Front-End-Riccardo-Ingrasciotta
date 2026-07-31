@@ -2,10 +2,24 @@
   "version": "0.0.1",
   "configurations": [
     {
-      "name": "anime-list",
+      "name": "redesign-tailwind-shadcn",
       "runtimeExecutable": "npm",
       "runtimeArgs": ["run", "dev"],
       "port": 3000
+    },
+    {
+      "name": "develop-antd",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "--prefix",
+        "C:\\Users\\Riccardo\\OneDrive\\Desktop\\PROGETTI\\PROGETTI_VARI\\anime-list-compare-develop",
+        "run",
+        "dev",
+        "--",
+        "--port",
+        "3001"
+      ],
+      "port": 3001
     }
   ]
 }

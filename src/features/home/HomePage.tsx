@@ -1,13 +1,10 @@
-import {
-  getScheduleForDay,
-  getTopAnime,
-  getUpcomingAnime,
-} from "@/api/anime";
+import { getScheduleForDay, getTopAnime, getUpcomingAnime } from "@/api/anime";
 import AnimeGrid from "@/components/AnimeGrid";
-import Eyecatch from "@/components/Eyecatch";
+import SectionSlab from "@/components/SectionSlab";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useAnimeQuery } from "@/hooks/useAnimeQuery";
 import { getTodayDay } from "@/shared/getTodayDay";
-import EyecatchCarousel from "./EyecatchCarousel";
+import OnAirHero from "./OnAirHero";
 
 /**
  * Home fans out four requests. They are not artificially staggered here — the
@@ -28,60 +25,42 @@ export default function HomePage() {
   return (
     <>
       {schedule.loading ? (
-        <div className="skeleton-card" style={{ aspectRatio: "auto", height: 380 }} />
+        <Skeleton className="h-[27rem] w-full rounded-none bg-paper-2 sm:h-[21rem] lg:h-[23.5rem]" />
       ) : (
-        <EyecatchCarousel
+        <OnAirHero
           items={schedule.data?.data ?? []}
           day={today.toUpperCase()}
         />
       )}
 
-      <Eyecatch
-        title="Top anime"
-        count={topTv.data ? `${topTv.data.data.length} titles` : undefined}
-        moreTo="/topanime/tv"
-      />
+      <SectionSlab title="Top anime" moreTo="/topanime/tv" />
       <AnimeGrid
         items={topTv.data?.data}
         loading={topTv.loading}
         error={topTv.error}
         onRetry={topTv.refetch}
         ranked
-        paginated={false}
         maxRows={1}
-        rows={1}
       />
 
-      <Eyecatch
-        title="Top movies"
-        count={topMovie.data ? `${topMovie.data.data.length} titles` : undefined}
-        moreTo="/topanime/movie"
-      />
+      <SectionSlab title="Top movies" moreTo="/topanime/movie" />
       <AnimeGrid
         items={topMovie.data?.data}
         loading={topMovie.loading}
         error={topMovie.error}
         onRetry={topMovie.refetch}
         ranked
-        paginated={false}
         maxRows={1}
-        rows={1}
       />
 
-      <Eyecatch
-        title="Upcoming"
-        count={upcoming.data ? `${upcoming.data.data.length} titles` : undefined}
-        moreTo="/topanime/upcoming"
-      />
+      <SectionSlab title="Upcoming" moreTo="/topanime/upcoming" />
       {/* Seasonal, not ranked — so no numerals here, deliberately. */}
       <AnimeGrid
         items={upcoming.data?.data}
         loading={upcoming.loading}
         error={upcoming.error}
         onRetry={upcoming.refetch}
-        paginated={false}
         maxRows={1}
-        rows={1}
         emptyTitle="No upcoming titles listed"
         emptyBody="The next season hasn't been announced yet. Check the top charts above."
       />

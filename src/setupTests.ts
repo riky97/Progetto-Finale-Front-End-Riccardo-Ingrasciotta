@@ -1,6 +1,7 @@
 import "@testing-library/jest-dom";
 
-// antd v4 components read matchMedia; jsdom does not implement it.
+// `OnAirHero` reads matchMedia to honour prefers-reduced-motion, and Radix
+// reads it too; jsdom does not implement it.
 if (!window.matchMedia) {
   window.matchMedia = ((query: string) => ({
     matches: false,

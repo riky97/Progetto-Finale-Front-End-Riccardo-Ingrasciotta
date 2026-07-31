@@ -1,0 +1,356 @@
+/* =========================================================================
+   Anime List — design system
+
+   Direction: "The Cut Sheet."
+
+   Anime is made on punched paper. Before a frame is ever broadcast it exists
+   as a numbered row on a timing sheet, printed in two cheap inks on pale
+   drawing stock, with the artwork mounted in a camera aperture and lined up
+   against registration marks. This app is a list of anime; the anime
+   industry's own list artifact is the cut sheet, so that is what the UI is.
+
+   - Ground is production stock, not a dark dashboard.
+   - Structure is drawn in riso blue: rules, cut numbers, labels, tints.
+   - One hot ink (riso pink) carries the accents, and only as a fill.
+   - Every image sits in a dark aperture with corner registration ticks.
+
+   Tokens live here, in Tailwind v4's `@theme`, so they are available both as
+   utilities (`bg-paper`, `font-display`) and as raw custom properties. There
+   is no `tailwind.config.js` — v4 does not need one.
+   ========================================================================= */
+
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+/* shadcn's primitives carry `dark:` classes. Binding the variant to an
+   explicit `.dark` ancestor (which this app never renders) keeps them inert
+   instead of firing off the visitor's OS colour-scheme preference. */
+@custom-variant dark (&:is(.dark *));
+
+/* ---------- Typefaces — all vendored in src/fonts ------------------------ */
+
+@font-face {
+  font-family: "Chaney";
+  src: url("../fonts/CHANEY-Extended.otf") format("opentype");
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Sofia";
+  src: url("../fonts/SofiaPro-Bold.ttf") format("truetype");
+  font-weight: 700;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Mark";
+  src: url("../fonts/Mark-Medium.ttf") format("truetype");
+  font-weight: 500;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Mark";
+  src: url("../fonts/Mark-Bold.ttf") format("truetype");
+  font-weight: 700;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Relative";
+  src: url("../fonts/Relative-Medium.ttf") format("truetype");
+  font-weight: 500;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Plain";
+  src: url("../fonts/Plain-Light.ttf") format("truetype");
+  font-weight: 300;
+  font-display: swap;
+}
+
+/* ---------- Tokens ------------------------------------------------------- */
+
+@theme {
+  /* Palette — two inks on stock.
+     `paper`/`ink` are the grounds, `blue` draws every structural mark,
+     `pink` is the single accent and is only ever used as a fill (it does not
+     have enough contrast on paper to set small text in). */
+  --color-paper: #e9e9e0;
+  --color-paper-2: #dfdfd4;
+  --color-paper-3: #d2d2c5;
+  --color-ink: #16181b;
+  --color-ink-2: #23262a;
+  --color-blue: #0f62b0;
+  --color-blue-ink: #0a4a87;
+  --color-blue-pale: #b7cee2;
+  --color-pink: #ff3d8e;
+  --color-pink-deep: #c4155e;
+  --color-graphite: #5c6066;
+
+  /* Type roles */
+  --font-display: "Chaney", "Arial Black", sans-serif;
+  --font-heading: "Sofia", "Helvetica Neue", sans-serif;
+  --font-sans: "Mark", system-ui, sans-serif;
+  --font-mono: "Relative", ui-monospace, monospace;
+  --font-longform: "Plain", Georgia, serif;
+
+  /* The sheet is drawn, not rounded. */
+  --radius: 0px;
+
+  --spine-w: 13rem;
+  --rail-h: 3.75rem;
+
+  --ease-cut: cubic-bezier(0.16, 1, 0.3, 1);
+
+  --animate-cut-in: cut-in 0.45s var(--ease-cut) both;
+
+  @keyframes cut-in {
+    from {
+      opacity: 0;
+      transform: translateY(0.6rem);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+}
+
+/* shadcn's semantic tokens, remapped onto the palette above so every
+   primitive inherits this identity without per-component overrides. */
+:root {
+  --background: var(--color-paper);
+  --foreground: var(--color-ink);
+  --card: var(--color-paper);
+  --card-foreground: var(--color-ink);
+  --popover: var(--color-ink);
+  --popover-foreground: var(--color-paper);
+  --primary: var(--color-pink);
+  --primary-foreground: var(--color-ink);
+  --secondary: var(--color-paper-2);
+  --secondary-foreground: var(--color-ink);
+  --muted: var(--color-paper-2);
+  --muted-foreground: var(--color-graphite);
+  --accent: var(--color-blue-pale);
+  --accent-foreground: var(--color-blue-ink);
+  --destructive: var(--color-pink-deep);
+  --border: var(--color-paper-3);
+  --input: var(--color-paper-3);
+  --ring: var(--color-blue);
+}
+
+/* …and exposed back to Tailwind as utilities, so `bg-primary`,
+   `border-border`, `ring-ring` and friends inside the shadcn primitives
+   resolve to the palette above. Without this block the primitives render
+   unstyled — the utilities simply don't get generated. */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  /* The sheet is drawn, not rounded — every step resolves to 0. */
+  --radius-sm: var(--radius);
+  --radius-md: var(--radius);
+  --radius-lg: var(--radius);
+  --radius-xl: var(--radius);
+  --radius-2xl: var(--radius);
+  --radius-3xl: var(--radius);
+  --radius-4xl: var(--radius);
+}
+
+/* ---------- Base --------------------------------------------------------- */
+
+@layer base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  * {
+    margin: 0;
+    padding: 0;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background: var(--color-paper);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-size: 0.95rem;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    line-height: 1.08;
+    letter-spacing: -0.015em;
+  }
+
+  img {
+    display: block;
+    max-width: 100%;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  /* Focus is drawn in riso blue (5.9:1 on stock). Anything sitting on an ink
+     ground opts into `.focus-on-ink` for a paper-coloured ring instead. */
+  :focus-visible {
+    outline: 3px solid var(--color-blue);
+    outline-offset: 2px;
+  }
+
+  .focus-on-ink:focus-visible {
+    outline-color: var(--color-paper);
+  }
+
+  ::selection {
+    background: var(--color-pink);
+    color: var(--color-ink);
+  }
+
+  * {
+    scrollbar-color: var(--color-paper-3) var(--color-paper);
+    scrollbar-width: thin;
+  }
+}
+
+@layer components {
+  /* ---- Signature: the aperture ----------------------------------------
+     Artwork is never placed straight on the sheet. It is mounted in a dark
+     camera aperture with registration ticks on the leading and trailing
+     corners — two, not four, so the mark stays a mark and not a border. */
+  .aperture {
+    position: relative;
+    overflow: hidden;
+    background: var(--color-ink);
+    isolation: isolate;
+  }
+
+  .aperture::before,
+  .aperture::after {
+    content: "";
+    position: absolute;
+    z-index: 2;
+    width: 0.85rem;
+    height: 0.85rem;
+    pointer-events: none;
+    /* Poster art is loud, so the ticks carry their own shadow and read as
+       marks on the frame rather than disappearing into the picture. */
+    filter: drop-shadow(0 0 2px rgb(0 0 0 / 0.85));
+    transition: inset 0.35s var(--ease-cut);
+  }
+
+  .aperture::before {
+    top: 0.4rem;
+    left: 0.4rem;
+    border-top: 2px solid var(--color-paper);
+    border-left: 2px solid var(--color-paper);
+  }
+
+  .aperture::after {
+    bottom: 0.4rem;
+    right: 0.4rem;
+    border-bottom: 2px solid var(--color-paper);
+    border-right: 2px solid var(--color-paper);
+  }
+
+  /* Hover pushes the camera in and opens the ticks outward. */
+  .aperture-hover:hover .aperture::before,
+  .aperture-hover:focus-visible .aperture::before {
+    top: 0.2rem;
+    left: 0.2rem;
+  }
+
+  .aperture-hover:hover .aperture::after,
+  .aperture-hover:focus-visible .aperture::after {
+    bottom: 0.2rem;
+    right: 0.2rem;
+  }
+
+  /* ---- The punched margin ----------------------------------------------
+     Animation paper is pegged through three holes. On the spine they are the
+     only ornament, and they double as the ruled margin of the sheet. */
+  .punch-strip {
+    background-image: radial-gradient(
+      circle at center,
+      var(--color-paper-3) 0 0.28rem,
+      transparent 0.29rem
+    );
+    background-repeat: repeat-y;
+    background-size: 100% 4.5rem;
+    background-position: center top;
+  }
+
+  /* Ruled rows, as printed on a timing sheet. */
+  .ruled {
+    background-image: repeating-linear-gradient(
+      to bottom,
+      color-mix(in srgb, var(--color-blue-pale) 55%, transparent) 0 1px,
+      transparent 1px 2.25rem
+    );
+  }
+
+  /* A label in the margin: small, tracked out, riso blue. */
+  .annotation {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--color-blue-ink);
+  }
+
+  /* Japanese titles set vertically, straight from the API's
+     `title_japanese`. Decorative kana would be a costume; real data is not. */
+  .vertical-jp {
+    writing-mode: vertical-rl;
+    /* `mixed`, not `upright`: many `title_japanese` values are part kanji and
+       part romaji, and real vertical Japanese setting rotates the latin run
+       rather than stacking it letter by letter. */
+    text-orientation: mixed;
+    letter-spacing: 0.18em;
+    font-family: var(--font-sans);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

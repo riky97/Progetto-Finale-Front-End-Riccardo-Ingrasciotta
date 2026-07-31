@@ -56,11 +56,11 @@
 
 ### Built With
 
-- [HTML](https://www.w3schools.com/html/html_intro.asp)
-- [CSS](https://www.w3schools.com/css/)
-- [Javascript](https://www.javascript.com/)
 - [React](https://reactjs.org/)
-- [Antd](https://ant.design/)
+- [TypeScript](https://www.typescriptlang.org/)
+- [Vite](https://vite.dev/)
+- [Tailwind CSS](https://tailwindcss.com/)
+- [shadcn/ui](https://ui.shadcn.com/)
 
 <p align="right"><a href="#top"><img src="img/topArrow_readme.png" alt="Back to top" width="30" height="30"></a></p>
 

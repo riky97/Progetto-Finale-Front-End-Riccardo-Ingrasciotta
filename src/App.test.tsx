@@ -41,11 +41,12 @@ describe("App", () => {
     ).toBeInTheDocument();
   });
 
-  it("marks the matching sidebar item active from the URL", () => {
-    const { container } = renderAt("/genre");
-    expect(
-      container.querySelector(".ant-menu-item-selected")?.textContent,
-    ).toMatch(/genre/i);
+  it("marks the matching nav item active from the URL", () => {
+    renderAt("/genre");
+    // `aria-current` is set from the router, not from localStorage.
+    const current = screen.getByRole("link", { current: "page" });
+    expect(current).toHaveTextContent(/genre/i);
+    expect(current).toHaveAttribute("href", "/genre");
   });
 
   it("shows a not-found state for an unknown route", () => {

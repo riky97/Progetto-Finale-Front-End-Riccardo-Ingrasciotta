@@ -1,8 +1,11 @@
-import { List } from "antd";
 import type { ApiError } from "@/api/client";
 import type { Anime } from "@/types/jikan";
 import useWindowDimensions from "@/hooks/useWindowDimensions";
-import { CARD_GRID, columnsForWidth, pageSizeForWidth } from "@/shared/gridConfig";
+import {
+  CARD_GRID_CLASS,
+  columnsForWidth,
+  pageSizeForWidth,
+} from "@/shared/gridConfig";
 import AnimeCard from "./AnimeCard";
 import { EmptyState, ErrorState, LoadingGrid } from "./States";
 
@@ -11,7 +14,7 @@ interface AnimeGridProps {
   loading: boolean;
   error?: ApiError;
   onRetry?: () => void;
-  /** Rows of cards per page. */
+  /** Rows of placeholders to draw while loading. */
   rows?: number;
   /**
    * Render the ranking numeral. Only pass this for lists that genuinely are a
@@ -22,8 +25,6 @@ interface AnimeGridProps {
   ranked?: boolean;
   emptyTitle?: string;
   emptyBody?: string;
-  /** Set false on the home rows, where paging inside a section is noise. */
-  paginated?: boolean;
   /**
    * Clamp the list to exactly this many rows at the current breakpoint. Used
    * by the home page, where each section is a single row teasing a "view all"
@@ -36,6 +37,9 @@ interface AnimeGridProps {
  * The single card-list surface. Every screen renders through this, so loading
  * and error states are impossible to forget — which is how the old
  * `loading={false}` hardcoding happened.
+ *
+ * Paging is not handled here: it lives in the URL on the screens that need it,
+ * so a page of results stays linkable.
  */
 export default function AnimeGrid({
   items,
@@ -46,45 +50,43 @@ export default function AnimeGrid({
   ranked = false,
   emptyTitle = "Nothing here yet",
   emptyBody = "Try another section or search for a title.",
-  paginated = true,
   maxRows,
 }: AnimeGridProps) {
   const { width } = useWindowDimensions();
-  const pageSize = pageSizeForWidth(width, rows);
 
   if (loading) {
-    return <LoadingGrid count={maxRows ? columnsForWidth(width) * maxRows : pageSize} />;
+    return <LoadingGrid count={pageSizeForWidth(width, maxRows ?? rows)} />;
   }
   if (error) return <ErrorState error={error} onRetry={onRetry} />;
   if (!items || items.length === 0) {
     return <EmptyState title={emptyTitle} body={emptyBody} />;
   }
 
+  // Jikan occasionally repeats an entry inside a single page (seen on
+  // `/seasons/upcoming`), which renders duplicate cards and duplicate React
+  // keys. The list is the wrong place to be surprised by that.
+  const unique = Array.from(
+    new Map(items.map((anime) => [anime.mal_id, anime])).values(),
+  );
+
   const visible = maxRows
-    ? items.slice(0, columnsForWidth(width) * maxRows)
-    : items;
+    ? unique.slice(0, columnsForWidth(width) * maxRows)
+    : unique;
 
   return (
-    <List
-      className="card-grid"
-      grid={CARD_GRID}
-      dataSource={visible}
-      pagination={
-        paginated && items.length > pageSize
-          ? { pageSize, position: "bottom", size: "small" }
-          : false
-      }
-      renderItem={(anime, index) => (
-        <List.Item
+    <ul className={CARD_GRID_CLASS}>
+      {visible.map((anime, index) => (
+        <li
           key={anime.mal_id}
-          style={{ animationDelay: `${Math.min(index, 11) * 45}ms` }}
+          className="animate-cut-in"
+          style={{ animationDelay: `${Math.min(index, 11) * 40}ms` }}
         >
           <AnimeCard
             anime={anime}
-            rank={ranked ? anime.rank ?? undefined : undefined}
+            rank={ranked ? (anime.rank ?? undefined) : undefined}
           />
-        </List.Item>
-      )}
-    />
+        </li>
+      ))}
+    </ul>
   );
 }

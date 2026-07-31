@@ -1,5 +1,4 @@
-import { Pagination } from "antd";
-import { useSearchParams, useParams } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
 import {
   getAnimeByGenre,
   getAnimeGenres,
@@ -7,11 +6,19 @@ import {
   getUpcomingAnime,
 } from "@/api/anime";
 import AnimeGrid from "@/components/AnimeGrid";
-import Eyecatch from "@/components/Eyecatch";
+import SectionSlab from "@/components/SectionSlab";
+import SheetPagination from "@/components/SheetPagination";
 import { useAnimeQuery } from "@/hooks/useAnimeQuery";
 import type { TopAnimeType } from "@/types/jikan";
 
-const TOP_TYPES: TopAnimeType[] = ["tv", "movie", "ova", "special", "ona", "music"];
+const TOP_TYPES: TopAnimeType[] = [
+  "tv",
+  "movie",
+  "ova",
+  "special",
+  "ona",
+  "music",
+];
 
 function isTopType(value: string): value is TopAnimeType {
   return (TOP_TYPES as string[]).includes(value);
@@ -50,11 +57,11 @@ export default function BrowsePage({ mode }: BrowsePageProps) {
 
   const pagination = query.data?.pagination;
   const total = pagination?.items.total ?? 0;
-  const perPage = pagination?.items.per_page ?? 25;
+  const pageCount = pagination?.last_visible_page ?? 1;
 
   const heading =
     mode === "genre"
-      ? genreName ?? "Genre"
+      ? (genreName ?? "Genre")
       : typeParam === "upcoming"
         ? "Upcoming"
         : `Top ${typeParam}`;
@@ -69,7 +76,7 @@ export default function BrowsePage({ mode }: BrowsePageProps) {
 
   return (
     <>
-      <Eyecatch
+      <SectionSlab
         title={heading}
         count={total ? `${total.toLocaleString()} titles` : undefined}
       />
@@ -80,19 +87,17 @@ export default function BrowsePage({ mode }: BrowsePageProps) {
         error={query.error}
         onRetry={query.refetch}
         ranked={ranked}
-        paginated={false}
         rows={4}
         emptyTitle="Nothing in this list"
-        emptyBody="Pick another category from the sidebar, or search for a title directly."
+        emptyBody="Pick another section on the left, or search for a title directly."
       />
 
-      {total > perPage && !query.loading && !query.error ? (
-        <Pagination
-          current={page}
-          total={total}
-          pageSize={perPage}
-          showSizeChanger={false}
+      {!query.loading && !query.error ? (
+        <SheetPagination
+          page={page}
+          pageCount={pageCount}
           onChange={goToPage}
+          hrefFor={(target) => (target === 1 ? "?" : `?page=${target}`)}
         />
       ) : null}
     </>

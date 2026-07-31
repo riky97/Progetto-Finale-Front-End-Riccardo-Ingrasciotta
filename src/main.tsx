@@ -1,28 +1,21 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import { ConfigProvider } from "antd";
 import { BrowserRouter } from "react-router-dom";
 
-// antd's CSS-variable build — required for ConfigProvider theming on v4.
-import "antd/dist/antd.variable.min.css";
-import "./styles/tokens.css";
-import "./styles/antd-overrides.css";
-import "./styles/app.css";
+import "./styles/index.css";
 
 import App from "./App";
-import { configureAntdTheme } from "./theme/antdTheme";
-
-configureAntdTheme();
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 ReactDOM.render(
   <React.StrictMode>
-    <ConfigProvider>
+    <TooltipProvider delayDuration={400}>
       <BrowserRouter
         future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
       >
         <App />
       </BrowserRouter>
-    </ConfigProvider>
+    </TooltipProvider>
   </React.StrictMode>,
   document.getElementById("root"),
 );
