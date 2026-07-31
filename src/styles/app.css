@@ -45,8 +45,10 @@ input:focus-visible,
 }
 
 .app-content {
+  width: 100%;
   padding: var(--space-4) var(--space-5) var(--space-6);
   max-width: 1680px;
+  margin-inline: auto;
 }
 
 .app-main--mobile .app-content {
