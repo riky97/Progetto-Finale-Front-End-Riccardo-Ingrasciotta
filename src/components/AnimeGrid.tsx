@@ -1,0 +1,90 @@
+import { List } from "antd";
+import type { ApiError } from "@/api/client";
+import type { Anime } from "@/types/jikan";
+import useWindowDimensions from "@/hooks/useWindowDimensions";
+import { CARD_GRID, columnsForWidth, pageSizeForWidth } from "@/shared/gridConfig";
+import AnimeCard from "./AnimeCard";
+import { EmptyState, ErrorState, LoadingGrid } from "./States";
+
+interface AnimeGridProps {
+  items: Anime[] | undefined;
+  loading: boolean;
+  error?: ApiError;
+  onRetry?: () => void;
+  /** Rows of cards per page. */
+  rows?: number;
+  /**
+   * Render the ranking numeral. Only pass this for lists that genuinely are a
+   * ranking (the top charts) — not for seasonal, search or genre results,
+   * where position carries no meaning. The numeral shown is the API's own
+   * `rank`, not the array index, so it stays correct across pages.
+   */
+  ranked?: boolean;
+  emptyTitle?: string;
+  emptyBody?: string;
+  /** Set false on the home rows, where paging inside a section is noise. */
+  paginated?: boolean;
+  /**
+   * Clamp the list to exactly this many rows at the current breakpoint. Used
+   * by the home page, where each section is a single row teasing a "view all"
+   * link rather than the whole result set.
+   */
+  maxRows?: number;
+}
+
+/**
+ * The single card-list surface. Every screen renders through this, so loading
+ * and error states are impossible to forget — which is how the old
+ * `loading={false}` hardcoding happened.
+ */
+export default function AnimeGrid({
+  items,
+  loading,
+  error,
+  onRetry,
+  rows = 1,
+  ranked = false,
+  emptyTitle = "Nothing here yet",
+  emptyBody = "Try another section or search for a title.",
+  paginated = true,
+  maxRows,
+}: AnimeGridProps) {
+  const { width } = useWindowDimensions();
+  const pageSize = pageSizeForWidth(width, rows);
+
+  if (loading) {
+    return <LoadingGrid count={maxRows ? columnsForWidth(width) * maxRows : pageSize} />;
+  }
+  if (error) return <ErrorState error={error} onRetry={onRetry} />;
+  if (!items || items.length === 0) {
+    return <EmptyState title={emptyTitle} body={emptyBody} />;
+  }
+
+  const visible = maxRows
+    ? items.slice(0, columnsForWidth(width) * maxRows)
+    : items;
+
+  return (
+    <List
+      className="card-grid"
+      grid={CARD_GRID}
+      dataSource={visible}
+      pagination={
+        paginated && items.length > pageSize
+          ? { pageSize, position: "bottom", size: "small" }
+          : false
+      }
+      renderItem={(anime, index) => (
+        <List.Item
+          key={anime.mal_id}
+          style={{ animationDelay: `${Math.min(index, 11) * 45}ms` }}
+        >
+          <AnimeCard
+            anime={anime}
+            rank={ranked ? anime.rank ?? undefined : undefined}
+          />
+        </List.Item>
+      )}
+    />
+  );
+}
