@@ -1,14 +1,23 @@
 /**
- * A tiny scheduler that keeps outbound requests inside Jikan's public rate
- * limits (roughly 3 requests/second and 60 requests/minute).
+ * A tiny scheduler that keeps outbound requests inside AniList's rate limit.
  *
- * The Home screen fans out several calls at once; without this they burst in
- * parallel and earn a 429 storm. Everything funnels through `schedule()`, which
- * serialises tasks behind both a minimum gap and a rolling per-minute window.
+ * AniList documents 90 requests/minute, but the live API has been serving a
+ * degraded limit for a long while: responses currently come back with
+ * `X-RateLimit-Limit: 30`, i.e. 30 requests per rolling minute. We pace against
+ * the *observed* header value, not the documented one, with a little headroom.
+ *
+ * Unlike the previous Jikan pacing there is no meaningful per-second ceiling —
+ * AniList only enforces the per-minute budget — so the minimum gap here is
+ * small and exists purely to avoid slamming several requests into the same
+ * millisecond. That matters for UX: the Home screen fans out four queries at
+ * once and they should not be serialised into a multi-second staircase.
+ *
+ * Everything funnels through `schedule()`, which holds tasks behind both the
+ * minimum gap and a rolling per-minute window.
  */
 
-const MIN_INTERVAL_MS = 400; // ~2.5 req/s, comfortably under the ~3/s ceiling
-const MAX_PER_MINUTE = 55; // a little headroom under the documented 60/min
+const MIN_INTERVAL_MS = 120; // just enough to avoid a simultaneous burst
+const MAX_PER_MINUTE = 28; // headroom under the observed X-RateLimit-Limit: 30
 const WINDOW_MS = 60_000;
 
 const sleep = (ms: number) =>

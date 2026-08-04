@@ -1,4 +1,4 @@
-import type { ScheduleDay } from "@/types/jikan";
+import type { ScheduleDay } from "@/types/anilist";
 
 const DAYS: ScheduleDay[] = [
   "sunday",
@@ -10,7 +10,11 @@ const DAYS: ScheduleDay[] = [
   "saturday",
 ];
 
-/** The current weekday as a Jikan `/schedules?filter=` value. */
+/**
+ * The current weekday. AniList has no weekday filter, so this feeds
+ * `weekdayWindow()` in the API layer, which turns it into a unix time range
+ * for `Page.airingSchedules`.
+ */
 export function getTodayDay(date: Date = new Date()): ScheduleDay {
   return DAYS[date.getDay()];
 }

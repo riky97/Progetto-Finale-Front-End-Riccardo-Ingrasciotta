@@ -1,6 +1,7 @@
 import { Carousel } from "antd";
 import { Link } from "react-router-dom";
-import type { Anime } from "@/types/jikan";
+import { scoreOutOfTen } from "@/api/anime";
+import type { Anime } from "@/types/anilist";
 
 interface EyecatchCarouselProps {
   items: Anime[];
@@ -9,9 +10,12 @@ interface EyecatchCarouselProps {
 }
 
 /**
- * The hero, built as an anime eyecatch: poster art under an ink scrim, the
+ * The hero, built as an anime eyecatch: key art under an ink scrim, the
  * weekday on a sheared vermilion slab, and the show's real Japanese title set
- * vertically at the edge — `title_japanese` straight from the API.
+ * vertically at the edge — AniList's `title.native`.
+ *
+ * Prefers `bannerImage` (16:9 key art) over the portrait cover, since this is a
+ * wide hero; AniList gives us both, which Jikan did not.
  */
 export default function EyecatchCarousel({ items, day }: EyecatchCarouselProps) {
   if (items.length === 0) return null;
@@ -20,16 +24,14 @@ export default function EyecatchCarousel({ items, day }: EyecatchCarouselProps) 
     <div className="eyecatch-hero">
       <Carousel autoplay autoplaySpeed={6000} effect="fade" dotPosition="bottom">
         {items.map((anime) => {
-          const image =
-            anime.images?.webp?.large_image_url ??
-            anime.images?.jpg?.large_image_url ??
-            "";
+          const image = anime.bannerImage ?? anime.coverImage ?? "";
+          const score = scoreOutOfTen(anime.averageScore);
 
           return (
-            <div key={anime.mal_id}>
+            <div key={anime.id}>
               <Link
                 className="eyecatch-hero__slide"
-                to={`/information/${anime.mal_id}`}
+                to={`/information/${anime.id}`}
               >
                 {image ? (
                   <img
@@ -48,18 +50,18 @@ export default function EyecatchCarousel({ items, day }: EyecatchCarouselProps) 
                     <h3 className="eyecatch-hero__title">{anime.title}</h3>
                     <p className="eyecatch-hero__sub">
                       {[
-                        anime.type,
+                        anime.format,
                         anime.episodes ? `${anime.episodes} ep` : null,
-                        anime.score ? `★ ${anime.score.toFixed(2)}` : null,
+                        score ? `★ ${score}` : null,
                       ]
                         .filter(Boolean)
                         .join("  ·  ")}
                     </p>
                   </div>
 
-                  {anime.title_japanese ? (
+                  {anime.titleNative ? (
                     <span className="vertical-jp" aria-hidden="true">
-                      {anime.title_japanese}
+                      {anime.titleNative}
                     </span>
                   ) : null}
                 </div>

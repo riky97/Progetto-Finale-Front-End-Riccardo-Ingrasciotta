@@ -1,114 +1,532 @@
-import { apiGet } from "./client";
+import { gqlRequest } from "./client";
 import type {
+  AniListAiringSchedule,
+  AniListMedia,
+  AniListPageInfo,
   Anime,
   AnimeFull,
   AnimeGenre,
-  JikanItemResponse,
-  JikanListResponse,
+  PagedResponse,
   ScheduleDay,
   TopAnimeType,
-} from "@/types/jikan";
+} from "@/types/anilist";
 
 /**
- * Every endpoint below uses the query-parameter form that Jikan v4 actually
- * expects. The previous implementation used v3-shaped path segments
- * (`/top/anime/1/tv`, `/genre/anime/1/1`, `/search/anime?...`) against the v4
- * host, which is why the app returned nothing.
+ * One function per screen-level query, all posted to AniList's single GraphQL
+ * endpoint. Every function returns the flat `Anime` view model, never raw
+ * AniList shapes — normalisation lives at the bottom of this file so the score
+ * scale, HTML description and nested title/cover objects are handled once.
+ *
+ * AniList caps `perPage` at 50; asking for more is a validation error.
  */
+
+const MAX_PER_PAGE = 50;
 
 export interface Paged {
   page?: number;
   limit?: number;
 }
 
-/** `/top/anime?type=tv&page=1` */
-export function getTopAnime(
+const clampPerPage = (limit: number | undefined, fallback: number): number =>
+  Math.min(MAX_PER_PAGE, Math.max(1, limit ?? fallback));
+
+/* ------------------------------------------------------------------ *
+ * Shared GraphQL fragments
+ * ------------------------------------------------------------------ */
+
+/** The fields every card needs. Kept minimal — AniList charges complexity. */
+const MEDIA_CARD_FIELDS = `
+  id
+  idMal
+  title { romaji english native }
+  coverImage { extraLarge large medium color }
+  bannerImage
+  format
+  status
+  episodes
+  duration
+  averageScore
+  meanScore
+  popularity
+  favourites
+  season
+  seasonYear
+  startDate { year month day }
+  endDate { year month day }
+  genres
+  source
+  description
+  isAdult
+  siteUrl
+`;
+
+/** Card fields plus the extras only the detail page renders. */
+const MEDIA_DETAIL_FIELDS = `
+  ${MEDIA_CARD_FIELDS}
+  studios(isMain: true) { nodes { id name isAnimationStudio } }
+  rankings { rank type format year season allTime context }
+`;
+
+const PAGE_INFO_FIELDS = `
+  pageInfo { total currentPage lastPage hasNextPage perPage }
+`;
+
+/* ------------------------------------------------------------------ *
+ * Queries
+ * ------------------------------------------------------------------ */
+
+/**
+ * `Page.media(type: ANIME, format: …, sort: SCORE_DESC)`
+ *
+ * Replaces Jikan's `/top/anime?type=tv`. AniList has no precomputed "top"
+ * endpoint — a score-sorted page *is* the chart, which is why the ranking
+ * numeral on these lists is positional (see `rankStart` in BrowsePage).
+ */
+export async function getTopAnime(
   type: TopAnimeType,
   { page = 1, limit }: Paged = {},
-): Promise<JikanListResponse<Anime>> {
-  return apiGet<JikanListResponse<Anime>>("/top/anime", {
-    params: { type, page, limit },
+): Promise<PagedResponse<Anime>> {
+  const query = `
+    query TopAnime($page: Int, $perPage: Int, $format: MediaFormat) {
+      Page(page: $page, perPage: $perPage) {
+        ${PAGE_INFO_FIELDS}
+        media(type: ANIME, format: $format, sort: SCORE_DESC, isAdult: false) {
+          ${MEDIA_CARD_FIELDS}
+        }
+      }
+    }
+  `;
+
+  const data = await gqlRequest<{ Page: RawPage }>(query, {
+    page,
+    perPage: clampPerPage(limit, 24),
+    format: FORMAT_BY_TOP_TYPE[type],
   });
+
+  return toPagedResponse(data.Page);
 }
 
-/** `/seasons/upcoming?page=1` */
-export function getUpcomingAnime({
+/**
+ * `Page.media(type: ANIME, status: NOT_YET_RELEASED, sort: POPULARITY_DESC)`
+ *
+ * Replaces Jikan's `/seasons/upcoming`. Sorting by popularity keeps the
+ * recognisable titles first, which is what the home row wants.
+ */
+export async function getUpcomingAnime({
   page = 1,
   limit,
-}: Paged = {}): Promise<JikanListResponse<Anime>> {
-  return apiGet<JikanListResponse<Anime>>("/seasons/upcoming", {
-    params: { page, limit },
+}: Paged = {}): Promise<PagedResponse<Anime>> {
+  const query = `
+    query UpcomingAnime($page: Int, $perPage: Int) {
+      Page(page: $page, perPage: $perPage) {
+        ${PAGE_INFO_FIELDS}
+        media(
+          type: ANIME
+          status: NOT_YET_RELEASED
+          sort: POPULARITY_DESC
+          isAdult: false
+        ) {
+          ${MEDIA_CARD_FIELDS}
+        }
+      }
+    }
+  `;
+
+  const data = await gqlRequest<{ Page: RawPage }>(query, {
+    page,
+    perPage: clampPerPage(limit, 24),
   });
+
+  return toPagedResponse(data.Page);
 }
 
 /**
- * `/schedules?filter=friday`
- * Note: v4 renamed this from v3's `/schedule/{day}` to a plural path with a
- * `filter` query parameter.
+ * `Page.airingSchedules(airingAt_greater:, airingAt_lesser:)`
+ *
+ * AniList has no "day of week" filter, so we compute a unix window for the
+ * requested weekday (today, or the nearest upcoming occurrence) and ask for
+ * everything broadcasting inside it.
+ *
+ * Two deliberate deviations from a naive port:
+ *  - We over-fetch (50) and re-sort by popularity, because a raw time-ordered
+ *    schedule is dominated by long-running Chinese ONAs and would make the
+ *    home carousel look broken. Jikan's `/schedules` was implicitly
+ *    popularity-weighted; this restores that feel.
+ *  - Adult titles are filtered out client-side; `airingSchedules` has no
+ *    `isAdult` argument of its own.
+ *  - Results are deduplicated by media id. `airingSchedules` returns one row
+ *    per *episode*, so a batch release (a whole season dropped at once) would
+ *    otherwise repeat the same show across several carousel slides.
  */
-export function getScheduleForDay(
+export async function getScheduleForDay(
   day: ScheduleDay,
-  { page = 1, limit }: Paged = {},
-): Promise<JikanListResponse<Anime>> {
-  return apiGet<JikanListResponse<Anime>>("/schedules", {
-    params: { filter: day, page, limit, sfw: true },
-  });
+  { limit }: Paged = {},
+): Promise<PagedResponse<Anime>> {
+  const { start, end } = weekdayWindow(day);
+
+  const query = `
+    query DaySchedule($start: Int, $end: Int, $perPage: Int) {
+      Page(page: 1, perPage: $perPage) {
+        ${PAGE_INFO_FIELDS}
+        airingSchedules(
+          airingAt_greater: $start
+          airingAt_lesser: $end
+          sort: TIME
+        ) {
+          id
+          airingAt
+          episode
+          media { ${MEDIA_CARD_FIELDS} }
+        }
+      }
+    }
+  `;
+
+  const data = await gqlRequest<{
+    Page: { pageInfo: AniListPageInfo; airingSchedules: AniListAiringSchedule[] };
+  }>(query, { start, end, perPage: MAX_PER_PAGE });
+
+  const wanted = clampPerPage(limit, 10);
+
+  const byId = new Map<number, AniListMedia>();
+  for (const entry of data.Page.airingSchedules ?? []) {
+    const media = entry.media;
+    if (!media || media.isAdult) continue;
+    if (!byId.has(media.id)) byId.set(media.id, media);
+  }
+
+  const items = [...byId.values()]
+    .sort((a, b) => (b.popularity ?? 0) - (a.popularity ?? 0))
+    .slice(0, wanted)
+    .map(normaliseMedia);
+
+  return {
+    data: items,
+    pageInfo: { ...toPageInfo(data.Page.pageInfo), total: items.length },
+  };
 }
 
 /**
- * `/anime?q=naruto&page=1&order_by=members&sort=desc`
- * `order_by`/`sort` are documented v4 search params; ordering by `members`
- * descending surfaces well-known titles first, which is what users expect.
+ * `Page.media(type: ANIME, search: $query, sort: SEARCH_MATCH)`
+ *
+ * Replaces Jikan's `/anime?q=`. `SEARCH_MATCH` is AniList's relevance sort and
+ * behaves far better than ordering by popularity for exact-title lookups.
  */
-export function searchAnime(
+export async function searchAnime(
   query: string,
-  { page = 1, limit = 24 }: Paged = {},
-): Promise<JikanListResponse<Anime>> {
-  return apiGet<JikanListResponse<Anime>>("/anime", {
-    params: {
-      q: query,
-      page,
-      limit,
-      order_by: "members",
-      sort: "desc",
-      sfw: true,
-    },
+  { page = 1, limit }: Paged = {},
+): Promise<PagedResponse<Anime>> {
+  const document = `
+    query SearchAnime($search: String, $page: Int, $perPage: Int) {
+      Page(page: $page, perPage: $perPage) {
+        ${PAGE_INFO_FIELDS}
+        media(type: ANIME, search: $search, sort: SEARCH_MATCH, isAdult: false) {
+          ${MEDIA_CARD_FIELDS}
+        }
+      }
+    }
+  `;
+
+  const data = await gqlRequest<{ Page: RawPage }>(document, {
+    search: query,
+    page,
+    perPage: clampPerPage(limit, 24),
   });
+
+  return toPagedResponse(data.Page);
 }
 
 /**
- * `/anime?genres=1&page=1`
- * Replaces v3's `/genre/anime/{id}/{page}`.
+ * `Page.media(type: ANIME, genre: $genre, sort: POPULARITY_DESC)`
+ *
+ * AniList genres are plain strings, so `genre` here is a name such as
+ * "Slice of Life" — not a numeric id. The `/genre/:genreId` route carries the
+ * URL-encoded name.
  */
-export function getAnimeByGenre(
-  genreId: number,
-  { page = 1, limit = 24 }: Paged = {},
-): Promise<JikanListResponse<Anime>> {
-  return apiGet<JikanListResponse<Anime>>("/anime", {
-    params: {
-      genres: genreId,
-      page,
-      limit,
-      order_by: "members",
-      sort: "desc",
-      sfw: true,
-    },
+export async function getAnimeByGenre(
+  genre: string,
+  { page = 1, limit }: Paged = {},
+): Promise<PagedResponse<Anime>> {
+  const query = `
+    query GenreAnime($genre: String, $page: Int, $perPage: Int) {
+      Page(page: $page, perPage: $perPage) {
+        ${PAGE_INFO_FIELDS}
+        media(
+          type: ANIME
+          genre: $genre
+          sort: POPULARITY_DESC
+          isAdult: false
+        ) {
+          ${MEDIA_CARD_FIELDS}
+        }
+      }
+    }
+  `;
+
+  const data = await gqlRequest<{ Page: RawPage }>(query, {
+    genre,
+    page,
+    perPage: clampPerPage(limit, 24),
   });
+
+  return toPagedResponse(data.Page);
 }
 
-/**
- * `/anime/{id}/full`
- * Replaces the dead v3 call `https://api.jikan.moe/v3/anime/{id}`.
- */
+/** `Media(id: $id, type: ANIME)` — replaces Jikan's `/anime/{id}/full`. */
 export async function getAnimeById(id: number): Promise<AnimeFull> {
-  const response = await apiGet<JikanItemResponse<AnimeFull>>(
-    `/anime/${id}/full`,
-  );
-  return response.data;
+  const query = `
+    query AnimeDetail($id: Int) {
+      Media(id: $id, type: ANIME) {
+        ${MEDIA_DETAIL_FIELDS}
+      }
+    }
+  `;
+
+  const data = await gqlRequest<{ Media: AniListMedia | null }>(query, { id });
+  if (!data.Media) {
+    throw new Error("We couldn't find that anime.");
+  }
+  return normaliseMediaFull(data.Media);
 }
 
-/** `/genres/anime` — the real genre list, replacing the hardcoded array. */
+/**
+ * `GenreCollection` — a bare `[String]`.
+ *
+ * Unlike Jikan's `/genres/anime` this carries no per-genre title counts, and
+ * there is no cheap way to derive them (it would take one query per genre).
+ * The count badge was dropped from the genre tiles rather than faked.
+ *
+ * "Hentai" is filtered out to match the `isAdult: false` filter every list
+ * query already applies — leaving it in would link to a guaranteed-empty page.
+ */
 export async function getAnimeGenres(): Promise<AnimeGenre[]> {
-  const response = await apiGet<JikanListResponse<AnimeGenre>>("/genres/anime");
-  return response.data;
+  const query = `query GenreList { GenreCollection }`;
+
+  const data = await gqlRequest<{ GenreCollection: (string | null)[] }>(query);
+
+  return (data.GenreCollection ?? [])
+    .filter((name): name is string => Boolean(name) && name !== "Hentai")
+    .map((name) => ({ name }));
+}
+
+/* ------------------------------------------------------------------ *
+ * Weekday → unix window
+ * ------------------------------------------------------------------ */
+
+const DAY_INDEX: Record<ScheduleDay, number> = {
+  sunday: 0,
+  monday: 1,
+  tuesday: 2,
+  wednesday: 3,
+  thursday: 4,
+  friday: 5,
+  saturday: 6,
+};
+
+/**
+ * Local-midnight-to-midnight unix seconds for the next occurrence of `day`,
+ * counting today as the nearest occurrence. Exported for tests.
+ */
+export function weekdayWindow(
+  day: ScheduleDay,
+  now: Date = new Date(),
+): { start: number; end: number } {
+  const target = DAY_INDEX[day];
+  const offset = (target - now.getDay() + 7) % 7;
+
+  const start = new Date(now);
+  start.setDate(start.getDate() + offset);
+  start.setHours(0, 0, 0, 0);
+
+  return {
+    start: Math.floor(start.getTime() / 1000),
+    end: Math.floor(start.getTime() / 1000) + 86_400,
+  };
+}
+
+/* ------------------------------------------------------------------ *
+ * Normalisation
+ * ------------------------------------------------------------------ */
+
+interface RawPage {
+  pageInfo: AniListPageInfo;
+  media: (AniListMedia | null)[];
+}
+
+const FORMAT_BY_TOP_TYPE: Record<TopAnimeType, string> = {
+  tv: "TV",
+  movie: "MOVIE",
+  ova: "OVA",
+  special: "SPECIAL",
+  ona: "ONA",
+  music: "MUSIC",
+};
+
+/** AniList screams its enums; the UI does not. */
+const FORMAT_LABELS: Record<string, string> = {
+  TV: "TV",
+  TV_SHORT: "TV Short",
+  MOVIE: "Movie",
+  SPECIAL: "Special",
+  OVA: "OVA",
+  ONA: "ONA",
+  MUSIC: "Music",
+};
+
+const STATUS_LABELS: Record<string, string> = {
+  FINISHED: "Finished",
+  RELEASING: "Releasing",
+  NOT_YET_RELEASED: "Not yet released",
+  CANCELLED: "Cancelled",
+  HIATUS: "Hiatus",
+};
+
+const MONTHS = [
+  "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+];
+
+/** Title-cases an AniList SCREAMING_SNAKE enum as a fallback label. */
+function humaniseEnum(value: string): string {
+  return value
+    .toLowerCase()
+    .split("_")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+}
+
+function formatFuzzyDate(date: {
+  year: number | null;
+  month: number | null;
+  day: number | null;
+} | null): string | null {
+  if (!date?.year) return null;
+  if (!date.month) return String(date.year);
+  const month = MONTHS[date.month - 1] ?? "";
+  return date.day
+    ? `${month} ${date.day}, ${date.year}`
+    : `${month} ${date.year}`;
+}
+
+/**
+ * AniList descriptions are HTML-ish: `<br>`, `<i>`, `<b>`, occasional
+ * `<a href>` and HTML entities. The UI renders them as plain text, so strip
+ * tags to whitespace-normalised prose rather than dangerously setting HTML.
+ */
+export function stripHtml(input: string | null): string | null {
+  if (!input) return null;
+
+  const text = input
+    .replace(/<\s*br\s*\/?\s*>/gi, "\n")
+    .replace(/<\s*\/\s*p\s*>/gi, "\n")
+    .replace(/<[^>]*>/g, "")
+    .replace(/&nbsp;/gi, " ")
+    .replace(/&amp;/gi, "&")
+    .replace(/&lt;/gi, "<")
+    .replace(/&gt;/gi, ">")
+    .replace(/&quot;/gi, '"')
+    .replace(/&#0?39;|&apos;/gi, "'")
+    .replace(/&mdash;/gi, "—")
+    .replace(/&ndash;/gi, "–")
+    .replace(/[ \t]+/g, " ")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+
+  return text.length > 0 ? text : null;
+}
+
+/**
+ * AniList scores are integers out of 100; the UI's badge was built for a 0-10
+ * figure. Convert once, here, so no component has to remember the scale.
+ */
+export function scoreOutOfTen(averageScore: number | null): string | null {
+  if (averageScore === null || averageScore === undefined) return null;
+  return (averageScore / 10).toFixed(1);
+}
+
+function bestCover(media: AniListMedia): string | null {
+  return (
+    media.coverImage?.extraLarge ??
+    media.coverImage?.large ??
+    media.coverImage?.medium ??
+    null
+  );
+}
+
+function airedText(media: AniListMedia): string | null {
+  const from = formatFuzzyDate(media.startDate);
+  const to = formatFuzzyDate(media.endDate);
+  if (from && to && from !== to) return `${from} – ${to}`;
+  return from ?? null;
+}
+
+export function normaliseMedia(media: AniListMedia): Anime {
+  const title =
+    media.title?.romaji ??
+    media.title?.english ??
+    media.title?.native ??
+    "Untitled";
+
+  return {
+    id: media.id,
+    title,
+    titleEnglish: media.title?.english ?? null,
+    titleNative: media.title?.native ?? null,
+    coverImage: bestCover(media),
+    bannerImage: media.bannerImage ?? null,
+    format: media.format
+      ? FORMAT_LABELS[media.format] ?? humaniseEnum(media.format)
+      : null,
+    status: media.status
+      ? STATUS_LABELS[media.status] ?? humaniseEnum(media.status)
+      : null,
+    episodes: media.episodes ?? null,
+    duration: media.duration ?? null,
+    averageScore: media.averageScore ?? null,
+    popularity: media.popularity ?? null,
+    favourites: media.favourites ?? null,
+    genres: media.genres ?? [],
+    season: media.season ? humaniseEnum(media.season) : null,
+    seasonYear: media.seasonYear ?? null,
+    startYear: media.startDate?.year ?? media.seasonYear ?? null,
+    airedText: airedText(media),
+    description: stripHtml(media.description),
+    source: media.source ? humaniseEnum(media.source) : null,
+    siteUrl: media.siteUrl ?? null,
+    isAdult: Boolean(media.isAdult),
+  };
+}
+
+function normaliseMediaFull(media: AniListMedia): AnimeFull {
+  // The closest analogue to Jikan's global `rank`: AniList's all-time
+  // "highest rated" position, scoped to this title's own format.
+  const rated = (media.rankings ?? []).find(
+    (entry) => entry.type === "RATED" && entry.allTime === true,
+  );
+
+  return {
+    ...normaliseMedia(media),
+    studios: media.studios?.nodes ?? [],
+    ratedRank: rated?.rank ?? null,
+    ratedRankContext: rated?.context ?? null,
+  };
+}
+
+function toPageInfo(info: AniListPageInfo | null | undefined) {
+  return {
+    total: info?.total ?? 0,
+    currentPage: info?.currentPage ?? 1,
+    lastPage: info?.lastPage ?? 1,
+    hasNextPage: info?.hasNextPage ?? false,
+    perPage: info?.perPage ?? 24,
+  };
+}
+
+function toPagedResponse(page: RawPage): PagedResponse<Anime> {
+  return {
+    data: (page.media ?? [])
+      .filter((media): media is AniListMedia => Boolean(media))
+      .map(normaliseMedia),
+    pageInfo: toPageInfo(page.pageInfo),
+  };
 }

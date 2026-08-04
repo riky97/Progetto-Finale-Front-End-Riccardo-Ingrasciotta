@@ -3,7 +3,9 @@ import { MemoryRouter } from "react-router-dom";
 import { describe, expect, it, vi, beforeEach } from "vitest";
 import App from "./App";
 
-// The shell must render without hitting the network.
+// The shell must render without hitting AniList. Note `scoreOutOfTen` is a
+// pure helper that also lives in this module and is called during render, so
+// the mock has to provide a real implementation rather than a stub.
 vi.mock("@/api/anime", () => ({
   getTopAnime: vi.fn(() => new Promise(() => {})),
   getUpcomingAnime: vi.fn(() => new Promise(() => {})),
@@ -12,6 +14,8 @@ vi.mock("@/api/anime", () => ({
   searchAnime: vi.fn(() => new Promise(() => {})),
   getAnimeByGenre: vi.fn(() => new Promise(() => {})),
   getAnimeById: vi.fn(() => new Promise(() => {})),
+  scoreOutOfTen: (score: number | null) =>
+    score === null ? null : (score / 10).toFixed(1),
 }));
 
 function renderAt(path: string) {

@@ -668,18 +668,8 @@ a.tag:focus-visible {
   letter-spacing: -0.01em;
 }
 
-.genre-tile__count {
-  font-family: var(--font-utility);
-  font-size: var(--step--1);
-  letter-spacing: 0.12em;
-  color: var(--sumi);
-  transition: color 0.2s;
-}
-
-.genre-tile:hover .genre-tile__count,
-.genre-tile:focus-visible .genre-tile__count {
-  color: var(--ink);
-}
+/* AniList's GenreCollection carries no per-genre title counts, so a tile is
+   just its name — the old `.genre-tile__count` badge no longer exists. */
 
 /* ---------- Search ------------------------------------------------------- */
 

@@ -26,7 +26,7 @@ export default function SearchPage() {
     setSearchParams(next ? { q: next } : {});
   };
 
-  const total = results.data?.pagination.items.total;
+  const total = results.data?.pageInfo.total;
 
   return (
     <>

@@ -1,6 +1,6 @@
 import { List } from "antd";
 import type { ApiError } from "@/api/client";
-import type { Anime } from "@/types/jikan";
+import type { Anime } from "@/types/anilist";
 import useWindowDimensions from "@/hooks/useWindowDimensions";
 import { CARD_GRID, columnsForWidth, pageSizeForWidth } from "@/shared/gridConfig";
 import AnimeCard from "./AnimeCard";
@@ -16,10 +16,16 @@ interface AnimeGridProps {
   /**
    * Render the ranking numeral. Only pass this for lists that genuinely are a
    * ranking (the top charts) — not for seasonal, search or genre results,
-   * where position carries no meaning. The numeral shown is the API's own
-   * `rank`, not the array index, so it stays correct across pages.
+   * where position carries no meaning.
+   *
+   * AniList has no per-title global `rank` field the way Jikan did, so the
+   * numeral is positional: the top charts *are* a `SCORE_DESC` page, which
+   * makes position the ranking. `rankStart` offsets it so page 2 continues
+   * from 25 rather than restarting at 1.
    */
   ranked?: boolean;
+  /** 1-based rank of the first item in `items`. Defaults to 1. */
+  rankStart?: number;
   emptyTitle?: string;
   emptyBody?: string;
   /** Set false on the home rows, where paging inside a section is noise. */
@@ -44,6 +50,7 @@ export default function AnimeGrid({
   onRetry,
   rows = 1,
   ranked = false,
+  rankStart = 1,
   emptyTitle = "Nothing here yet",
   emptyBody = "Try another section or search for a title.",
   paginated = true,
@@ -76,12 +83,12 @@ export default function AnimeGrid({
       }
       renderItem={(anime, index) => (
         <List.Item
-          key={anime.mal_id}
+          key={anime.id}
           style={{ animationDelay: `${Math.min(index, 11) * 45}ms` }}
         >
           <AnimeCard
             anime={anime}
-            rank={ranked ? anime.rank ?? undefined : undefined}
+            rank={ranked ? rankStart + index : undefined}
           />
         </List.Item>
       )}

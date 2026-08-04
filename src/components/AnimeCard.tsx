@@ -1,6 +1,7 @@
 import { Tooltip } from "antd";
 import { Link } from "react-router-dom";
-import type { Anime } from "@/types/jikan";
+import { scoreOutOfTen } from "@/api/anime";
+import type { Anime } from "@/types/anilist";
 
 interface AnimeCardProps {
   anime: Anime;
@@ -13,26 +14,21 @@ interface AnimeCardProps {
 }
 
 function yearOf(anime: Anime): string {
-  if (anime.year) return String(anime.year);
-  const from = anime.aired?.from;
-  if (from) return from.slice(0, 4);
-  return "TBA";
+  return anime.startYear ? String(anime.startYear) : "TBA";
 }
 
 /**
- * One card for every surface. The old codebase had two near-identical cards
- * (`AnimeCard` / `AnimeCardGenre`) because v3 and v4 payloads disagreed on
- * field names; on v4 every endpoint returns the same `Anime` shape.
+ * One card for every surface. Every AniList list query returns the same
+ * normalised `Anime` shape, so a single card serves the home rows, the top
+ * charts, genre pages and search results alike.
  */
 export default function AnimeCard({ anime, rank }: AnimeCardProps) {
-  const poster =
-    anime.images?.webp?.large_image_url ??
-    anime.images?.jpg?.large_image_url ??
-    anime.images?.jpg?.image_url ??
-    "";
+  const poster = anime.coverImage ?? "";
+  // AniList scores are 0-100 integers; `scoreOutOfTen` renders them as "8.6".
+  const score = scoreOutOfTen(anime.averageScore);
 
   return (
-    <Link className="title-card" to={`/information/${anime.mal_id}`}>
+    <Link className="title-card" to={`/information/${anime.id}`}>
       <div className="title-card__frame">
         {poster ? (
           <img
@@ -47,8 +43,8 @@ export default function AnimeCard({ anime, rank }: AnimeCardProps) {
           <span className="title-card__rank" aria-hidden="true">
             {String(rank).padStart(2, "0")}
           </span>
-        ) : anime.score ? (
-          <span className="title-card__score">{anime.score.toFixed(2)}</span>
+        ) : score ? (
+          <span className="title-card__score">{score}</span>
         ) : null}
       </div>
 
@@ -58,7 +54,7 @@ export default function AnimeCard({ anime, rank }: AnimeCardProps) {
         </Tooltip>
         <div className="title-card__meta">
           <span>{yearOf(anime)}</span>
-          <span>{anime.type ?? "—"}</span>
+          <span>{anime.format ?? "—"}</span>
           {anime.episodes ? <span>{anime.episodes} ep</span> : null}
         </div>
       </div>

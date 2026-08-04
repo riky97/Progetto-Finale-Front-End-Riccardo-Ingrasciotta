@@ -1,13 +1,12 @@
 import { Link, useParams } from "react-router-dom";
-import { getAnimeById } from "@/api/anime";
+import { getAnimeById, scoreOutOfTen } from "@/api/anime";
 import Eyecatch from "@/components/Eyecatch";
 import { ErrorState, LoadingGrid } from "@/components/States";
 import { useAnimeQuery } from "@/hooks/useAnimeQuery";
 
 /**
- * The detail page. The id comes from `useParams`, not from splitting
- * `window.location.href`, and the request goes to `/anime/{id}/full` on v4 —
- * the old code called `v3/anime/{id}`, which is why this page was blank.
+ * The detail page. The id comes from `useParams` and is an AniList media id
+ * (not a MyAnimeList id), fetched through `Media(id:)`.
  */
 export default function InformationPage() {
   const { id } = useParams();
@@ -25,22 +24,25 @@ export default function InformationPage() {
   const anime = query.data;
   if (!anime) return null;
 
-  const poster =
-    anime.images?.webp?.large_image_url ??
-    anime.images?.jpg?.large_image_url ??
-    "";
+  const poster = anime.coverImage ?? "";
 
   // Numeric only — status is prose and gets its own line below.
+  //
+  // "Rank" is AniList's all-time *highest rated* position for this format,
+  // the nearest equivalent to the single global rank Jikan used to expose.
   const stats = [
-    { label: "Score", value: anime.score?.toFixed(2) ?? "—", accent: true },
-    { label: "Rank", value: anime.rank ? `#${anime.rank}` : "—" },
+    { label: "Score", value: scoreOutOfTen(anime.averageScore) ?? "—", accent: true },
+    { label: "Rank", value: anime.ratedRank ? `#${anime.ratedRank}` : "—" },
     { label: "Episodes", value: anime.episodes ?? "—" },
-    { label: "Favourites", value: anime.favorites?.toLocaleString() ?? "—" },
+    { label: "Favourites", value: anime.favourites?.toLocaleString() ?? "—" },
   ];
 
   return (
     <>
-      <Eyecatch title={anime.type ?? "Anime"} count={anime.aired?.string ?? undefined} />
+      <Eyecatch
+        title={anime.format ?? "Anime"}
+        count={anime.airedText ?? undefined}
+      />
 
       <article className="detail">
         <div className="detail__poster">
@@ -53,12 +55,12 @@ export default function InformationPage() {
           <div className="detail__headline">
             <div style={{ minWidth: 0 }}>
               <h2 className="detail__title">{anime.title}</h2>
-              {anime.title_english && anime.title_english !== anime.title ? (
-                <p className="detail__romaji">{anime.title_english}</p>
+              {anime.titleEnglish && anime.titleEnglish !== anime.title ? (
+                <p className="detail__romaji">{anime.titleEnglish}</p>
               ) : null}
             </div>
-            {anime.title_japanese ? (
-              <span className="vertical-jp">{anime.title_japanese}</span>
+            {anime.titleNative ? (
+              <span className="vertical-jp">{anime.titleNative}</span>
             ) : null}
           </div>
 
@@ -87,13 +89,15 @@ export default function InformationPage() {
             <div className="detail__block">
               <h3>Genres</h3>
               <div className="tag-row">
+                {/* AniList genres are plain strings; the route carries the
+                    URL-encoded name rather than a numeric id. */}
                 {anime.genres.map((genre) => (
                   <Link
                     className="tag"
-                    key={genre.mal_id}
-                    to={`/genre/${genre.mal_id}`}
+                    key={genre}
+                    to={`/genre/${encodeURIComponent(genre)}`}
                   >
-                    {genre.name}
+                    {genre}
                   </Link>
                 ))}
               </div>
@@ -105,7 +109,7 @@ export default function InformationPage() {
               <h3>Studio</h3>
               <div className="tag-row">
                 {anime.studios.map((studio) => (
-                  <span className="tag" key={studio.mal_id}>
+                  <span className="tag" key={studio.id}>
                     {studio.name}
                   </span>
                 ))}
@@ -115,17 +119,13 @@ export default function InformationPage() {
 
           <div className="detail__block">
             <h3>Synopsis</h3>
-            <p className={anime.synopsis ? "prose" : "prose prose--muted"}>
-              {anime.synopsis ?? "No synopsis has been written for this title."}
+            {/* AniList descriptions arrive with inline HTML; the API layer
+                strips it to plain text with newlines preserved. */}
+            <p className={anime.description ? "prose" : "prose prose--muted"}>
+              {anime.description ??
+                "No synopsis has been written for this title."}
             </p>
           </div>
-
-          {anime.background ? (
-            <div className="detail__block">
-              <h3>Background</h3>
-              <p className="prose">{anime.background}</p>
-            </div>
-          ) : null}
         </div>
       </article>
     </>

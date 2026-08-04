@@ -5,9 +5,9 @@ import { ErrorState, LoadingGrid } from "@/components/States";
 import { useAnimeQuery } from "@/hooks/useAnimeQuery";
 
 /**
- * The genre list now comes from `/genres/anime` instead of the hardcoded
- * 22-entry array the app used to ship, so it stays in step with MyAnimeList
- * and carries real title counts.
+ * The genre list comes from AniList's `GenreCollection`, which is a bare list
+ * of strings — there are no numeric genre ids and no per-genre title counts,
+ * so the tiles link by URL-encoded name and the old count badge is gone.
  */
 export default function GenreIndexPage() {
   const genres = useAnimeQuery(() => getAnimeGenres(), []);
@@ -29,11 +29,10 @@ export default function GenreIndexPage() {
           {genres.data.map((genre) => (
             <Link
               className="genre-tile"
-              key={genre.mal_id}
-              to={`/genre/${genre.mal_id}`}
+              key={genre.name}
+              to={`/genre/${encodeURIComponent(genre.name)}`}
             >
               <span className="genre-tile__name">{genre.name}</span>
-              <span className="genre-tile__count">{genre.count}</span>
             </Link>
           ))}
         </div>

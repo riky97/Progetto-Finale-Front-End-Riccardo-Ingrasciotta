@@ -10,9 +10,8 @@ import { getTodayDay } from "@/shared/getTodayDay";
 import EyecatchCarousel from "./EyecatchCarousel";
 
 /**
- * Home fans out four requests. They are not artificially staggered here — the
- * shared client's queue paces them under Jikan's ~3 req/s limit, which is what
- * used to produce 429s when these fired in parallel.
+ * Home fans out four AniList queries. They are not artificially staggered here
+ * — the shared client's queue paces them under AniList's per-minute budget.
  */
 export default function HomePage() {
   const today = getTodayDay();

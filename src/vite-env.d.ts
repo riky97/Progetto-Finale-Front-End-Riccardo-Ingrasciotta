@@ -1,8 +1,8 @@
 /// <reference types="vite/client" />
 
 interface ImportMetaEnv {
-  /** Override the Jikan API host. Defaults to https://api.jikan.moe/v4 */
-  readonly VITE_JIKAN_BASE_URL?: string;
+  /** Override the AniList GraphQL endpoint. Defaults to https://graphql.anilist.co */
+  readonly VITE_ANILIST_URL?: string;
 }
 
 interface ImportMeta {
