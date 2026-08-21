@@ -381,6 +381,80 @@ input:focus-visible,
   animation: slam-in 0.45s var(--ease-slam) both;
 }
 
+/* ---------- Anime rail (home rows) ----------------------------------------
+   "Top anime", "Top movies" and "Upcoming" on the home page are a single
+   horizontally scrollable row rather than a wrapped grid, framed by two
+   arrow buttons. `AnimeGrid`'s wrapped/paginated grid is still what
+   `/topanime/:type` and genre/search results use — this is home-only.        */
+
+.anime-rail {
+  display: flex;
+  align-items: stretch;
+  gap: var(--space-2);
+}
+
+.anime-rail__track {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  gap: var(--space-4);
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+  scroll-padding-left: var(--space-1);
+  scrollbar-width: none;
+  padding-bottom: var(--space-1);
+}
+
+.anime-rail__track::-webkit-scrollbar {
+  display: none;
+}
+
+.anime-rail__item {
+  flex: 0 0 auto;
+  scroll-snap-align: start;
+  width: 170px;
+  animation: slam-in 0.45s var(--ease-slam) both;
+}
+
+.anime-rail__item .title-card {
+  max-width: none;
+}
+
+.anime-rail__arrow {
+  flex: 0 0 auto;
+  align-self: stretch;
+  width: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--ink-raise);
+  border: 1px solid var(--ink-line);
+  color: var(--paper);
+  font-family: var(--font-display);
+  font-size: var(--step-2);
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, opacity 0.2s;
+}
+
+.anime-rail__arrow:hover:not(:disabled),
+.anime-rail__arrow:focus-visible {
+  background: var(--vermilion);
+  color: var(--ink);
+  border-color: var(--vermilion);
+}
+
+.anime-rail__arrow:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+@media (min-width: 768px) {
+  .anime-rail__item {
+    width: 200px;
+  }
+}
+
 /* ---------- Eyecatch carousel (home hero) -------------------------------- */
 
 .eyecatch-hero {
@@ -670,93 +744,6 @@ a.tag:focus-visible {
 
 /* AniList's GenreCollection carries no per-genre title counts, so a tile is
    just its name — the old `.genre-tile__count` badge no longer exists. */
-
-/* ---------- Genre rail (home) --------------------------------------------
-   A horizontally scrollable strip of the first 20 categories, framed by two
-   arrow buttons. Same tile language as the genre index page, laid out as a
-   row instead of a grid.                                                    */
-
-.genre-rail {
-  display: flex;
-  align-items: stretch;
-  gap: 1px;
-  background: var(--ink-line);
-  border: 1px solid var(--ink-line);
-}
-
-.genre-rail__track {
-  flex: 1 1 auto;
-  min-width: 0;
-  display: flex;
-  gap: 1px;
-  overflow-x: auto;
-  scroll-snap-type: x proximity;
-  scrollbar-width: none;
-}
-
-.genre-rail__track::-webkit-scrollbar {
-  display: none;
-}
-
-.genre-rail__tile {
-  flex: 0 0 auto;
-  scroll-snap-align: start;
-  min-width: 148px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--ink);
-  padding: var(--space-3) var(--space-4);
-  color: var(--paper);
-  font-family: var(--font-display);
-  font-size: var(--step-0);
-  text-transform: uppercase;
-  letter-spacing: -0.01em;
-  text-align: center;
-  transition: background 0.2s, color 0.2s;
-}
-
-.genre-rail__tile:hover,
-.genre-rail__tile:focus-visible {
-  background: var(--vermilion);
-  color: var(--ink);
-}
-
-.genre-rail__arrow {
-  flex: 0 0 auto;
-  width: 44px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--ink);
-  color: var(--paper);
-  font-family: var(--font-display);
-  font-size: var(--step-2);
-  line-height: 1;
-  cursor: pointer;
-  transition: background 0.2s, color 0.2s, opacity 0.2s;
-}
-
-.genre-rail__arrow:hover:not(:disabled),
-.genre-rail__arrow:focus-visible {
-  background: var(--vermilion);
-  color: var(--ink);
-}
-
-.genre-rail__arrow:disabled {
-  opacity: 0.3;
-  cursor: default;
-}
-
-@media (max-width: 560px) {
-  .genre-rail__arrow {
-    width: 36px;
-  }
-  .genre-rail__tile {
-    min-width: 124px;
-    padding: var(--space-2) var(--space-3);
-  }
-}
 
 /* ---------- Search ------------------------------------------------------- */
 
