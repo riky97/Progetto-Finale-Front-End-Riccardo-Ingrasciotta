@@ -1,4 +1,5 @@
 import {
+  getAnimeGenres,
   getScheduleForDay,
   getTopAnime,
   getUpcomingAnime,
@@ -8,6 +9,9 @@ import Eyecatch from "@/components/Eyecatch";
 import { useAnimeQuery } from "@/hooks/useAnimeQuery";
 import { getTodayDay } from "@/shared/getTodayDay";
 import EyecatchCarousel from "./EyecatchCarousel";
+import GenreRail from "./GenreRail";
+
+const HOME_GENRE_LIMIT = 20;
 
 /**
  * Home fans out four AniList queries. They are not artificially staggered here
@@ -23,6 +27,7 @@ export default function HomePage() {
   const topTv = useAnimeQuery(() => getTopAnime("tv", { limit: 24 }), []);
   const topMovie = useAnimeQuery(() => getTopAnime("movie", { limit: 24 }), []);
   const upcoming = useAnimeQuery(() => getUpcomingAnime({ limit: 24 }), []);
+  const genres = useAnimeQuery(() => getAnimeGenres(), []);
 
   return (
     <>
@@ -84,6 +89,11 @@ export default function HomePage() {
         emptyTitle="No upcoming titles listed"
         emptyBody="The next season hasn't been announced yet. Check the top charts above."
       />
+
+      <Eyecatch title="Categories" moreTo="/genre" moreLabel="Browse all" />
+      {genres.data ? (
+        <GenreRail genres={genres.data.slice(0, HOME_GENRE_LIMIT).map((g) => g.name)} />
+      ) : null}
     </>
   );
 }
