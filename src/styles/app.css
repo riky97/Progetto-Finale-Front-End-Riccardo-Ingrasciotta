@@ -420,28 +420,42 @@ input:focus-visible,
   max-width: none;
 }
 
+/* Sheared to match the eyecatch slab — the app's signature device — rather
+   than a generic square control. The glyph counter-skews so it reads upright
+   inside the tilted button. */
 .anime-rail__arrow {
   flex: 0 0 auto;
   align-self: stretch;
-  width: 36px;
+  width: 38px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--ink-raise);
-  border: 1px solid var(--ink-line);
-  color: var(--paper);
+  background: var(--vermilion);
+  transform: skewX(var(--shear));
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  transition: background 0.2s, opacity 0.2s;
+}
+
+.anime-rail__arrow-glyph {
+  display: block;
+  transform: skewX(calc(var(--shear) * -1));
+  color: var(--ink);
   font-family: var(--font-display);
   font-size: var(--step-2);
   line-height: 1;
-  cursor: pointer;
-  transition: background 0.2s, color 0.2s, opacity 0.2s;
 }
 
 .anime-rail__arrow:hover:not(:disabled),
 .anime-rail__arrow:focus-visible {
-  background: var(--vermilion);
-  color: var(--ink);
-  border-color: var(--vermilion);
+  background: var(--vermilion-deep);
+}
+
+/* ink-on-vermilion-deep fails contrast, so the glyph flips light on hover/focus */
+.anime-rail__arrow:hover:not(:disabled) .anime-rail__arrow-glyph,
+.anime-rail__arrow:focus-visible .anime-rail__arrow-glyph {
+  color: var(--paper);
 }
 
 .anime-rail__arrow:disabled {

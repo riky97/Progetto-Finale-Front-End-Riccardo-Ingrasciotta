@@ -77,7 +77,7 @@ export default function AnimeRail({
         onClick={() => scrollBy(-1)}
         disabled={atStart}
       >
-        ‹
+        <span className="anime-rail__arrow-glyph">‹</span>
       </button>
 
       <div className="anime-rail__track" ref={trackRef} onScroll={updateEdges}>
@@ -99,7 +99,7 @@ export default function AnimeRail({
         onClick={() => scrollBy(1)}
         disabled={atEnd}
       >
-        ›
+        <span className="anime-rail__arrow-glyph">›</span>
       </button>
     </div>
   );
