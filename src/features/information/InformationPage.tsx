@@ -1,8 +1,11 @@
+import { SignedIn, SignedOut } from "@clerk/clerk-react";
 import { Link, useParams } from "react-router-dom";
 import { getAnimeById, scoreOutOfTen } from "@/api/anime";
 import Eyecatch from "@/components/Eyecatch";
+import LibraryToggle from "@/components/LibraryToggle";
 import { ErrorState, LoadingGrid } from "@/components/States";
 import { useAnimeQuery } from "@/hooks/useAnimeQuery";
+import { useFavorites, useWatched } from "@/hooks/useLibrary";
 
 /**
  * The detail page. The id comes from `useParams` and is an AniList media id
@@ -15,6 +18,10 @@ export default function InformationPage() {
   const query = useAnimeQuery(() => getAnimeById(animeId), [animeId], {
     enabled: Number.isFinite(animeId) && animeId > 0,
   });
+
+  // Hooks must run before the early returns below.
+  const favorites = useFavorites();
+  const watched = useWatched();
 
   if (query.loading) return <LoadingGrid count={4} />;
   if (query.error) {
@@ -84,6 +91,38 @@ export default function InformationPage() {
               .filter(Boolean)
               .join("  ·  ")}
           </p>
+
+          {/* Unlike the cards, the detail page shows signed-out users what
+              they're missing — there is room for one line of copy here, and
+              this is the page someone lands on from a shared link. */}
+          <div className="lib-actions">
+            <SignedIn>
+              <LibraryToggle
+                variant="detail"
+                state={favorites}
+                animeId={anime.id}
+                animeTitle={anime.title}
+                glyph="♥"
+                label="Favourite"
+                savedLabel="Favourited"
+              />
+              <LibraryToggle
+                variant="detail"
+                state={watched}
+                animeId={anime.id}
+                animeTitle={anime.title}
+                glyph="✓"
+                label="Mark watched"
+                savedLabel="Watched"
+              />
+            </SignedIn>
+            <SignedOut>
+              <p className="lib-actions__prompt">
+                <Link to="/sign-in">Sign in</Link> to keep favourites and track
+                what you&rsquo;ve watched.
+              </p>
+            </SignedOut>
+          </div>
 
           {anime.genres.length > 0 ? (
             <div className="detail__block">

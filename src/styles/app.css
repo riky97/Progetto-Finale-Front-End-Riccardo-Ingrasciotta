@@ -822,6 +822,211 @@ a.tag:focus-visible {
   }
 }
 
+/* ---------- Auth block in the sidebar / rail -----------------------------
+   Signed out: a sheared vermilion slab, the same device as the eyecatch and
+   the rail arrows. Signed in: Clerk's <UserButton>, themed to a hard square
+   in src/theme/clerkAppearance.ts so it doesn't read as a floating avatar.  */
+
+/* The kana was absolutely positioned at the foot of the rail; with an auth
+   block down there now it joins the flex flow instead, so the two can't
+   overlap at any sidebar height. */
+.sidebar .sidebar__kana {
+  position: static;
+  transform: none;
+  margin: auto auto var(--space-4);
+}
+
+.sidebar .sidebar__auth {
+  padding: var(--space-3);
+  border-top: 1px solid var(--ink-line);
+}
+
+.sidebar__signin {
+  display: inline-block;
+  background: var(--vermilion);
+  transform: skewX(var(--shear));
+  padding: 0.42em 1.4em;
+  transition: background 0.2s;
+}
+
+.sidebar__signin span {
+  display: block;
+  transform: skewX(calc(var(--shear) * -1));
+  font-family: var(--font-utility);
+  font-size: var(--step--1);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+
+.sidebar__signin:hover,
+.sidebar__signin:focus-visible {
+  background: var(--vermilion-deep);
+}
+
+/* ink-on-vermilion-deep fails contrast, so the label flips light. */
+.sidebar__signin:hover span,
+.sidebar__signin:focus-visible span {
+  color: var(--paper);
+}
+
+/* Mobile rail: the auth block becomes a cell at the right-hand end of the
+   row rather than a footer, so the 60px bar keeps its single-line height. */
+.rail .ant-layout-sider-children {
+  flex-direction: row;
+  align-items: stretch;
+}
+
+.rail .ant-menu {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.rail .sidebar__auth {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  padding: 0 var(--space-3);
+  border-left: 1px solid var(--ink-line);
+}
+
+.rail .sidebar__signin {
+  padding: 0.35em 1em;
+}
+
+/* ---------- Favourite / watched toggles ----------------------------------
+   Two variants of one control. `--card` is the small overlay mark on a
+   poster; `--detail` is the labelled slab on the information page. Both are
+   sheared like the eyecatch device rather than rounded like a generic
+   icon button.                                                              */
+
+.lib-toggle {
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-utility);
+  transition: background 0.18s, color 0.18s, opacity 0.18s;
+}
+
+.lib-toggle:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+/* --- Card overlay --- */
+
+.lib-toggle--card {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 30px;
+  padding: 0;
+  background: rgba(11, 11, 12, 0.72);
+  color: var(--paper);
+  transform: skewX(var(--shear));
+  /* Nudged right so the sheared edge doesn't clip off the poster corner. */
+  margin-left: 3px;
+}
+
+.lib-toggle--card .lib-toggle__glyph {
+  display: block;
+  transform: skewX(calc(var(--shear) * -1));
+  font-size: 0.95rem;
+  line-height: 1;
+}
+
+.lib-toggle--card:hover:not(:disabled),
+.lib-toggle--card:focus-visible {
+  background: var(--vermilion);
+  color: var(--ink);
+}
+
+.lib-toggle--card.lib-toggle--on {
+  background: var(--vermilion);
+  color: var(--ink);
+}
+
+.lib-toggle--card.lib-toggle--on:hover:not(:disabled) {
+  background: var(--vermilion-deep);
+  color: var(--paper);
+}
+
+/* --- Detail page slab --- */
+
+.lib-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+  margin-top: var(--space-4);
+}
+
+.lib-actions__prompt {
+  color: var(--sumi);
+  font-family: var(--font-utility);
+  font-size: var(--step--1);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.lib-actions__prompt a {
+  color: var(--vermilion);
+  border-bottom: 1px solid var(--vermilion);
+}
+
+.lib-toggle--detail {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6em;
+  background: transparent;
+  border: 1px solid var(--ink-line);
+  color: var(--paper);
+  padding: 0.5em 1.2em;
+  font-size: var(--step--1);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.lib-toggle--detail .lib-toggle__glyph {
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.lib-toggle--detail:hover:not(:disabled),
+.lib-toggle--detail:focus-visible {
+  border-color: var(--vermilion);
+  color: var(--vermilion);
+}
+
+.lib-toggle--detail.lib-toggle--on {
+  background: var(--vermilion);
+  border-color: var(--vermilion);
+  color: var(--ink);
+}
+
+.lib-toggle--detail.lib-toggle--on:hover:not(:disabled),
+.lib-toggle--detail.lib-toggle--on:focus-visible {
+  background: var(--vermilion-deep);
+  border-color: var(--vermilion-deep);
+  color: var(--paper);
+}
+
+/* The signed-out CTA on /favorites and /watched reuses the slab as a link. */
+.state a.lib-toggle--detail {
+  display: inline-flex;
+}
+
+/* ---------- Auth pages --------------------------------------------------- */
+
+.auth-page {
+  display: flex;
+  justify-content: center;
+  padding: var(--space-4) 0 var(--space-6);
+}
+
 /* ---------- Footer ------------------------------------------------------- */
 
 .app-footer {

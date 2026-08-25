@@ -12,7 +12,10 @@ export type SectionKey =
   | "genre"
   | "search"
   | "topanime"
-  | "information";
+  | "information"
+  | "favorites"
+  | "watched"
+  | "auth";
 
 export interface Section {
   key: SectionKey;
@@ -59,6 +62,25 @@ export function useSection(): Section {
         label: "Detail",
         description: "Synopsis, studio, score and where it sits in the ranking.",
       };
+    case "favorites":
+      return {
+        key: "favorites",
+        label: "Favourites",
+        description: "Everything you've kept, newest first.",
+      };
+    case "watched":
+      return {
+        key: "watched",
+        label: "Watched",
+        description: "The titles you've marked as seen.",
+      };
+    case "sign-in":
+    case "sign-up":
+      return {
+        key: "auth",
+        label: "Account",
+        description: "Sign in to keep favourites and track what you've watched.",
+      };
     default:
       return {
         key: "home",
@@ -75,5 +97,8 @@ export function sectionKeyForPath(pathname: string): SectionKey {
   if (segment === "search") return "search";
   if (segment === "topanime") return "topanime";
   if (segment === "information") return "information";
+  if (segment === "favorites") return "favorites";
+  if (segment === "watched") return "watched";
+  if (segment === "sign-in" || segment === "sign-up") return "auth";
   return "home";
 }

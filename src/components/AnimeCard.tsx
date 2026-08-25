@@ -1,7 +1,10 @@
+import { SignedIn } from "@clerk/clerk-react";
 import { Tooltip } from "antd";
 import { Link } from "react-router-dom";
 import { scoreOutOfTen } from "@/api/anime";
+import { useFavorites } from "@/hooks/useLibrary";
 import type { Anime } from "@/types/anilist";
+import LibraryToggle from "./LibraryToggle";
 
 interface AnimeCardProps {
   anime: Anime;
@@ -26,6 +29,7 @@ export default function AnimeCard({ anime, rank }: AnimeCardProps) {
   const poster = anime.coverImage ?? "";
   // AniList scores are 0-100 integers; `scoreOutOfTen` renders them as "8.6".
   const score = scoreOutOfTen(anime.averageScore);
+  const favorites = useFavorites();
 
   return (
     <Link className="title-card" to={`/information/${anime.id}`}>
@@ -46,6 +50,20 @@ export default function AnimeCard({ anime, rank }: AnimeCardProps) {
         ) : score ? (
           <span className="title-card__score">{score}</span>
         ) : null}
+
+        {/* Hidden entirely when signed out rather than shown disabled: a
+            dead heart on every card in a 24-card grid is 24 dead controls,
+            and the sidebar already carries the one sign-in call to action. */}
+        <SignedIn>
+          <LibraryToggle
+            state={favorites}
+            animeId={anime.id}
+            animeTitle={anime.title}
+            glyph="♥"
+            label="Favourite"
+            savedLabel="Favourited"
+          />
+        </SignedIn>
       </div>
 
       <div className="title-card__body">

@@ -290,6 +290,57 @@ export async function getAnimeById(id: number): Promise<AnimeFull> {
 }
 
 /**
+ * `Page.media(id_in: $ids)` — one request for a whole set of ids.
+ *
+ * Backs `/favorites` and `/watched`, where the backend hands us a bare list of
+ * AniList media ids. Looping `getAnimeById` would burn one queue slot per
+ * title and blow through AniList's 30 req/min in a list of any size; `id_in`
+ * fetches up to `perPage` (50) of them in a single query.
+ *
+ * Two things worth knowing:
+ *  - AniList ignores the order of `id_in`, so results are re-sorted to match
+ *    the order the caller passed (the backend returns newest-saved first, and
+ *    that is the order the page should render).
+ *  - Sets larger than 50 are chunked. The chunks still go through `gqlRequest`,
+ *    so the rate-limit queue paces them.
+ */
+export async function getAnimeByIds(ids: number[]): Promise<Anime[]> {
+  const unique = [...new Set(ids.filter((id) => Number.isFinite(id) && id > 0))];
+  if (unique.length === 0) return [];
+
+  const query = `
+    query AnimeByIds($ids: [Int], $perPage: Int) {
+      Page(page: 1, perPage: $perPage) {
+        media(id_in: $ids, type: ANIME) {
+          ${MEDIA_CARD_FIELDS}
+        }
+      }
+    }
+  `;
+
+  const chunks: number[][] = [];
+  for (let i = 0; i < unique.length; i += MAX_PER_PAGE) {
+    chunks.push(unique.slice(i, i + MAX_PER_PAGE));
+  }
+
+  const byId = new Map<number, Anime>();
+  for (const chunk of chunks) {
+    const data = await gqlRequest<{ Page: { media: (AniListMedia | null)[] } }>(
+      query,
+      { ids: chunk, perPage: chunk.length },
+    );
+    for (const media of data.Page.media ?? []) {
+      if (media) byId.set(media.id, normaliseMedia(media));
+    }
+  }
+
+  // Restore the caller's order; ids AniList no longer knows about are dropped.
+  return unique
+    .map((id) => byId.get(id))
+    .filter((anime): anime is Anime => Boolean(anime));
+}
+
+/**
  * `GenreCollection` — a bare `[String]`.
  *
  * Unlike Jikan's `/genres/anime` this carries no per-genre title counts, and

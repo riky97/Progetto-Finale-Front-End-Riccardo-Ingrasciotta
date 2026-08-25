@@ -22,6 +22,7 @@ vi.mock("./client", async () => {
 
 const {
   getAnimeByGenre,
+  getAnimeByIds,
   getAnimeGenres,
   getScheduleForDay,
   getTopAnime,
@@ -225,6 +226,38 @@ describe("queries", () => {
     const result = await getScheduleForDay("tuesday", { limit: 10 });
 
     expect(result.data.map((a) => a.id)).toEqual([902, 900]); // popularity order
+  });
+
+  it("fetches a whole id set in one request and keeps the caller's order", async () => {
+    post.mockResolvedValue({
+      Page: {
+        // AniList returns id_in results in its own order, not ours.
+        media: [media({ id: 2 }), media({ id: 9 }), media({ id: 5 })],
+      },
+    });
+
+    const result = await getAnimeByIds([9, 5, 2]);
+
+    expect(post).toHaveBeenCalledTimes(1);
+    expect(post.mock.calls[0][0]).toContain("id_in: $ids");
+    expect(post.mock.calls[0][1]).toMatchObject({ ids: [9, 5, 2], perPage: 3 });
+    expect(result.map((a) => a.id)).toEqual([9, 5, 2]);
+  });
+
+  it("chunks id sets past AniList's 50-per-page ceiling", async () => {
+    post.mockResolvedValue({ Page: { media: [] } });
+
+    await getAnimeByIds(Array.from({ length: 63 }, (_, i) => i + 1));
+
+    expect(post).toHaveBeenCalledTimes(2);
+    expect(post.mock.calls[0][1]).toMatchObject({ perPage: 50 });
+    expect(post.mock.calls[1][1]).toMatchObject({ perPage: 13 });
+  });
+
+  it("skips the request entirely for an empty or invalid id list", async () => {
+    expect(await getAnimeByIds([])).toEqual([]);
+    expect(await getAnimeByIds([0, -4, NaN])).toEqual([]);
+    expect(post).not.toHaveBeenCalled();
   });
 
   it("drops null media entries AniList can return inside a page", async () => {

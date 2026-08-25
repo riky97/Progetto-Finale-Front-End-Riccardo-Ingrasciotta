@@ -3,10 +3,12 @@ import { Route, Routes } from "react-router-dom";
 import AnimeFooter from "@/components/layout/AnimeFooter";
 import AnimeSidebar from "@/components/layout/AnimeSidebar";
 import BroadcastHeader from "@/components/layout/BroadcastHeader";
+import AuthPage from "@/features/auth/AuthPage";
 import BrowsePage from "@/features/browse/BrowsePage";
 import GenreIndexPage from "@/features/genre/GenreIndexPage";
 import HomePage from "@/features/home/HomePage";
 import InformationPage from "@/features/information/InformationPage";
+import LibraryPage from "@/features/library/LibraryPage";
 import SearchPage from "@/features/search/SearchPage";
 import useWindowDimensions from "@/hooks/useWindowDimensions";
 import { EmptyState } from "@/components/States";
@@ -40,6 +42,22 @@ export default function App() {
             />
             <Route path="/information/:id" element={<InformationPage />} />
             <Route path="/search" element={<SearchPage />} />
+
+            {/* Signed-in surfaces. They render their own "sign in to see
+                this" state rather than redirecting, so the URL survives. */}
+            <Route
+              path="/favorites"
+              element={<LibraryPage collection="favorites" />}
+            />
+            <Route
+              path="/watched"
+              element={<LibraryPage collection="watched" />}
+            />
+
+            {/* Splat routes: Clerk's routed <SignIn>/<SignUp> own their own
+                sub-paths for verification, factor two and the like. */}
+            <Route path="/sign-in/*" element={<AuthPage mode="sign-in" />} />
+            <Route path="/sign-up/*" element={<AuthPage mode="sign-up" />} />
             <Route
               path="*"
               element={

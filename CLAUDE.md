@@ -42,6 +42,7 @@ No lint script is configured; correctness is enforced by `tsc` in strict mode (`
     | `searchAnime(q, …)` | `Page.media(search: $q, sort: SEARCH_MATCH)` |
     | `getAnimeByGenre(name, …)` | `Page.media(genre: $genre, sort: POPULARITY_DESC)` |
     | `getAnimeById(id)` | `Media(id: $id, type: ANIME)` |
+    | `getAnimeByIds(ids)` | `Page.media(id_in: $ids)`, chunked at 50 |
     | `getAnimeGenres()` | `GenreCollection` |
 
 - **Schema differences that will bite you** (these are why the migration was non-trivial):
@@ -60,7 +61,7 @@ No lint script is configured; correctness is enforced by `tsc` in strict mode (`
 
 - **Routing/state**: route params and query strings are the state. Use `useParams`/`useLocation`/`useSearchParams`; [useSection](src/shared/useSection.ts) derives the active section for the header and sidebar highlight. Search (`?q=`) and browse paging (`?page=`) live in the URL so results are linkable and back/forward works. There is deliberately **no** `localStorage` route/section tracking and no `window.location.href` string-splitting — that was the previous anti-pattern and should not come back.
 
-- **Features** (`src/features/`): `home/` (eyecatch carousel + top/upcoming rows), `browse/` (shared "view all" surface for `/topanime/:type` and `/genre/:genreId`), `genre/`, `search/`, `information/`. Cross-cutting UI lives in `src/components/`, layout chrome in `src/components/layout/`.
+- **Features** (`src/features/`): `home/` (eyecatch carousel + top/upcoming rows), `browse/` (shared "view all" surface for `/topanime/:type` and `/genre/:genreId`), `genre/`, `search/`, `information/`, `library/` (shared surface for `/favorites` and `/watched`), `auth/` (Clerk's routed sign-in/sign-up). Cross-cutting UI lives in `src/components/`, layout chrome in `src/components/layout/`.
 
 ## Backend (`server/`)
 
@@ -71,7 +72,19 @@ A separate Node project in the same monorepo — its own `package.json`/`node_mo
 - **Endpoints**: `GET/POST /api/favorites`, `DELETE /api/favorites/:animeId`, same shape for `/api/watched`. All require auth. Adding an existing favorite is idempotent (upsert, no 409); deleting a missing one returns 204, not 404. `GET /health` is unauthenticated, for Railway's healthcheck.
 - **Local dev**: `docker compose up -d` (root `docker-compose.yml`, Postgres 16) → `cp server/.env.example server/.env` and fill in real Clerk keys → `cd server && npm install && npx prisma migrate dev && npm run dev` (port 8080). `npm run smoke` in `server/` exercises the real Clerk verification path (signature + claims) against a throwaway RSA keypair set as `CLERK_JWT_KEY` — see `server/scripts/auth-smoke.ts` before assuming the auth path needs a live Clerk session to test.
 - **Deploy**: Railway, Root Directory = `server`; `server/railway.json` sets build/start/pre-deploy (`prisma migrate deploy`) and the healthcheck path.
-- The frontend does not call this API yet — that wiring (Clerk on the React side, favorites/watched hooks, UI) is a separate follow-up.
+
+## Auth and the user's library (frontend half)
+
+Environment: copy `.env.example` → `.env.local` (gitignored). `VITE_CLERK_PUBLISHABLE_KEY` is required — `main.tsx` throws without it — and `VITE_API_URL` points at the backend above.
+
+- **Clerk is `@clerk/clerk-react@4`, not 5.** v5 peers on React 18; this app is React 17. Don't "upgrade" it without moving React first. `@clerk/nextjs` is for a different framework and does not apply here.
+- **Provider nesting** in [main.tsx](src/main.tsx), outermost first: `ClerkProvider` → `ConfigProvider` → `BrowserRouter` → `LibraryProvider`. `LibraryProvider` calls `useAuth()`, so it must sit inside Clerk; it is inside the router so nothing above it needs re-mounting on navigation.
+- **Two API clients, deliberately.** [libraryClient.ts](src/api/libraryClient.ts) is our own REST backend: per-user, Bearer-authenticated, no rate-limit queue. [client.ts](src/api/client.ts) is AniList: anonymous, GraphQL, queued at 28 req/min. Never merge them — that would either push our traffic through AniList's queue or send a Clerk token to AniList. Both throw the same `ApiError`, so `ErrorState`/`AnimeGrid` render failures from either identically.
+- **The token is fetched per request.** Clerk session tokens are short-lived, so `LibraryProvider` registers `getToken` with `setLibraryTokenGetter` and an axios interceptor calls it on every request. Caching one in a module variable will start 401ing after about a minute.
+- **[useLibrary.tsx](src/hooks/useLibrary.tsx) is a provider, not a per-component query.** Every card in a 24-card grid asks "am I favorited?"; fetching per card would be dozens of requests. Two `GET`s run once per session and the answer lives in context. Mutations are optimistic with rollback — safe because both backend endpoints are idempotent. Consume it via `useFavorites()` / `useWatched()`, which return a no-op `SIGNED_OUT` state when there is no session, so components never have to branch on auth just to read it.
+- **`getAnimeByIds`** is the only new AniList query: `Page.media(id_in:)`, batched 50 at a time through the same `gqlRequest`/queue as everything else. `/favorites` and `/watched` use it — never loop `getAnimeById`. AniList ignores the order of `id_in`, so results are re-sorted to the order the backend returned (newest saved first). Unlike the other list queries it does **not** pass `isAdult: false`: a saved id must always resolve, or a title would silently vanish from the user's own list.
+- **Routing/gating decisions**: sign-in and sign-up are routes (`/sign-in/*`, `/sign-up/*`, splat because Clerk owns its own sub-steps), not modals — the URL is the state everywhere else in this app. `/favorites` and `/watched` render an explicit signed-out state rather than redirecting, and carry `?redirect_url=` into sign-in so the user lands back where they were. The favourite toggle is **hidden** on cards when signed out (24 dead controls is worse than none) but the detail page shows a one-line prompt instead, because that's the page people arrive at from a shared link.
+- **Theming Clerk**: [src/theme/clerkAppearance.ts](src/theme/clerkAppearance.ts) passes one `appearance` object on `ClerkProvider`. Clerk's `variables` never see the page's CSS custom properties, so the palette is duplicated there as literals — keep it in sync with `tokens.css`, which remains the source of truth. Clerk's "Secured by Clerk" badge has no appearance key (internal hashed class only) and is left as-is.
 
 ## Styling and design
 
