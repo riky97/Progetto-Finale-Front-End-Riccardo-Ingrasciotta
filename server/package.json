@@ -1,0 +1,39 @@
+{
+  "name": "anime-list-server",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Backend API for Anime List — favorites and watched lists, keyed by Clerk user id.",
+  "license": "MIT",
+  "engines": {
+    "node": ">=20.19"
+  },
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "prisma generate && tsc -p tsconfig.json",
+    "start": "node dist/index.js",
+    "typecheck": "tsc --noEmit",
+    "prisma": "prisma",
+    "migrate:dev": "prisma migrate dev",
+    "migrate:deploy": "prisma migrate deploy",
+    "postinstall": "prisma generate",
+    "smoke": "tsx scripts/auth-smoke.ts",
+    "token": "tsx scripts/dev-token.ts"
+  },
+  "dependencies": {
+    "@clerk/express": "2.1.63",
+    "@prisma/adapter-pg": "7.9.1",
+    "@prisma/client": "7.9.1",
+    "cors": "2.8.6",
+    "dotenv": "17.4.2",
+    "express": "5.2.1",
+    "zod": "4.4.3"
+  },
+  "devDependencies": {
+    "@types/cors": "2.8.19",
+    "@types/express": "5.0.6",
+    "@types/node": "24.13.3",
+    "prisma": "7.9.1",
+    "tsx": "4.23.12",
+    "typescript": "5.9.3"
+  }
+}

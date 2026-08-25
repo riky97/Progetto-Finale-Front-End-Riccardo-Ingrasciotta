@@ -1,0 +1,39 @@
+// Anime List backend schema.
+//
+// There is deliberately NO `User` model: Clerk is the source of truth for
+// identity. Every row is keyed by `clerkUserId`, the opaque Clerk user id
+// string (e.g. "user_2abc..."), taken from the verified session token.
+//
+// `animeId` is an AniList media id (see the frontend's src/api/anime.ts) —
+// never a MyAnimeList `mal_id`.
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+// Prisma 7: the connection URL lives in ../prisma.config.ts (for the CLI) and
+// in the driver adapter in ../src/prisma.ts (for the runtime client), not here.
+datasource db {
+  provider = "postgresql"
+}
+
+model Favorite {
+  id          Int      @id @default(autoincrement())
+  clerkUserId String
+  animeId     Int
+  createdAt   DateTime @default(now())
+
+  @@unique([clerkUserId, animeId])
+  @@index([clerkUserId])
+}
+
+model Watched {
+  id          Int      @id @default(autoincrement())
+  clerkUserId String
+  animeId     Int
+  createdAt   DateTime @default(now())
+
+  @@unique([clerkUserId, animeId])
+  @@index([clerkUserId])
+}

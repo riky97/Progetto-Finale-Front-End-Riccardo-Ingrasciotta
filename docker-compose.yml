@@ -1,0 +1,31 @@
+# Local Postgres for the Anime List backend (server/).
+#
+#   docker compose up -d
+#
+# Matches the DATABASE_URL in server/.env.example:
+#   postgresql://anime:animedev@localhost:5432/animelist?schema=public
+#
+# This is a *development* database. Railway provisions its own Postgres addon
+# and injects DATABASE_URL, so this file is never used in production.
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: anime-list-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: anime
+      POSTGRES_PASSWORD: animedev
+      POSTGRES_DB: animelist
+    ports:
+      - "5432:5432"
+    volumes:
+      - anime-list-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U anime -d animelist"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  anime-list-pgdata:
