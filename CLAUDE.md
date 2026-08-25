@@ -62,6 +62,17 @@ No lint script is configured; correctness is enforced by `tsc` in strict mode (`
 
 - **Features** (`src/features/`): `home/` (eyecatch carousel + top/upcoming rows), `browse/` (shared "view all" surface for `/topanime/:type` and `/genre/:genreId`), `genre/`, `search/`, `information/`. Cross-cutting UI lives in `src/components/`, layout chrome in `src/components/layout/`.
 
+## Backend (`server/`)
+
+A separate Node project in the same monorepo — its own `package.json`/`node_modules`, not merged into the root Vite app. Owns user accounts, favorites and watched lists; the frontend above still talks to AniList directly for anime data.
+
+- **Stack**: Express 5 + TypeScript + Prisma 7 (driver adapter `@prisma/adapter-pg`, connection URL lives in `server/prisma.config.ts`, not `schema.prisma`) + PostgreSQL. Generated Prisma client lives in `server/generated/`, not under `src/`, so `tsc`'s output copies cleanly.
+- **Auth**: Clerk (`@clerk/express`), not our own — there is deliberately **no `User` table**. `Favorite`/`Watched` rows are keyed directly by the Clerk user id (a string) from the verified session token. `clerkMiddleware()` + a thin `requireUser` (in `src/middleware/auth.ts`) 401s unauthenticated requests; `clerkMiddleware` alone never rejects on its own.
+- **Endpoints**: `GET/POST /api/favorites`, `DELETE /api/favorites/:animeId`, same shape for `/api/watched`. All require auth. Adding an existing favorite is idempotent (upsert, no 409); deleting a missing one returns 204, not 404. `GET /health` is unauthenticated, for Railway's healthcheck.
+- **Local dev**: `docker compose up -d` (root `docker-compose.yml`, Postgres 16) → `cp server/.env.example server/.env` and fill in real Clerk keys → `cd server && npm install && npx prisma migrate dev && npm run dev` (port 8080). `npm run smoke` in `server/` exercises the real Clerk verification path (signature + claims) against a throwaway RSA keypair set as `CLERK_JWT_KEY` — see `server/scripts/auth-smoke.ts` before assuming the auth path needs a live Clerk session to test.
+- **Deploy**: Railway, Root Directory = `server`; `server/railway.json` sets build/start/pre-deploy (`prisma migrate deploy`) and the healthcheck path.
+- The frontend does not call this API yet — that wiring (Clerk on the React side, favorites/watched hooks, UI) is a separate follow-up.
+
 ## Styling and design
 
 Ant Design v4 is the component base and stays. Theming is layered deliberately:
