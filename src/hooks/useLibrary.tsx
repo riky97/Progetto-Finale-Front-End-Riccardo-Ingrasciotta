@@ -17,6 +17,7 @@ import {
 } from "@/api/library";
 import type { CollectionName } from "@/api/library";
 import { setLibraryTokenGetter } from "@/api/libraryClient";
+import { useErrorBanner } from "./useErrorBanner";
 
 /**
  * The user's favorites and watched lists, held once for the whole app.
@@ -84,6 +85,7 @@ function useCollection(
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<ApiError | undefined>(undefined);
   const [reloadToken, setReloadToken] = useState(0);
+  const { showError } = useErrorBanner();
 
   const refetch = useCallback(() => {
     setReloadToken((token) => token + 1);
@@ -148,11 +150,15 @@ function useCollection(
       } catch (err: unknown) {
         setIds(previous);
         setError(toApiError(err));
+        // A generic notice, not the raw error: whoever hit this is mid-browse,
+        // not looking at a dedicated error screen, so there's nowhere to show
+        // network/CORS specifics usefully.
+        showError();
       } finally {
         setPending((current) => current.filter((id) => id !== animeId));
       }
     },
-    [collection, enabled, ids],
+    [collection, enabled, ids, showError],
   );
 
   return useMemo(

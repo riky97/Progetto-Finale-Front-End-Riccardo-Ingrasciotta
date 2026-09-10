@@ -39,6 +39,7 @@ vi.mock("@/api/library", () => ({
 }));
 
 const { LibraryProvider, useFavorites } = await import("./useLibrary");
+const { ErrorBannerProvider } = await import("./useErrorBanner");
 
 function Harness({ animeId = 3 }: { animeId?: number }) {
   const favorites = useFavorites();
@@ -57,9 +58,11 @@ function Harness({ animeId = 3 }: { animeId?: number }) {
 
 function renderHarness(animeId?: number) {
   return render(
-    <LibraryProvider>
-      <Harness animeId={animeId} />
-    </LibraryProvider>,
+    <ErrorBannerProvider>
+      <LibraryProvider>
+        <Harness animeId={animeId} />
+      </LibraryProvider>
+    </ErrorBannerProvider>,
   );
 }
 

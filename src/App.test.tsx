@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import { MemoryRouter } from "react-router-dom";
 import { describe, expect, it, vi, beforeEach } from "vitest";
 import App from "./App";
+import { ErrorBannerProvider } from "./hooks/useErrorBanner";
 import { LibraryProvider } from "./hooks/useLibrary";
 
 /**
@@ -53,9 +54,11 @@ vi.mock("@/api/anime", () => ({
 function renderAt(path: string) {
   return render(
     <MemoryRouter initialEntries={[path]}>
-      <LibraryProvider>
-        <App />
-      </LibraryProvider>
+      <ErrorBannerProvider>
+        <LibraryProvider>
+          <App />
+        </LibraryProvider>
+      </ErrorBannerProvider>
     </MemoryRouter>,
   );
 }

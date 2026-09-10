@@ -1029,6 +1029,51 @@ a.tag:focus-visible {
   padding: var(--space-4) 0 var(--space-6);
 }
 
+/* ---------- Error banner --------------------------------------------------
+   Fixed overlay for mid-session action failures (e.g. a favourite/watched
+   toggle that couldn't reach the backend) — distinct from `.state`, which
+   replaces a whole screen for a failed *load*. */
+
+.error-banner {
+  position: fixed;
+  left: 50%;
+  bottom: var(--space-4);
+  transform: translateX(-50%);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  max-width: calc(100vw - var(--space-4) * 2);
+  padding: var(--space-2) var(--space-3);
+  background: var(--ink-raise);
+  border-left: 4px solid var(--vermilion);
+  color: var(--paper);
+  font-family: var(--font-utility);
+  font-size: var(--step--1);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+.error-banner__text {
+  line-height: 1.4;
+}
+
+.error-banner__dismiss {
+  flex-shrink: 0;
+  border: none;
+  background: none;
+  color: var(--paper);
+  opacity: 0.7;
+  font-size: 1.2rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 var(--space-1);
+}
+
+.error-banner__dismiss:hover,
+.error-banner__dismiss:focus-visible {
+  opacity: 1;
+}
+
 /* ---------- Footer ------------------------------------------------------- */
 
 .app-footer {
