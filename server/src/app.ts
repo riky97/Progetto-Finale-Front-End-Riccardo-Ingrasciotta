@@ -10,7 +10,7 @@ import { createCollectionRouter } from './routes/collection';
 export function createApp(): Express {
   const app = express();
 
-  // Railway (and any other proxy) terminates TLS upstream; trust it so
+  // Render (and any other proxy) terminates TLS upstream; trust it so
   // req.protocol / req.ip are the client's, not the proxy's.
   app.set('trust proxy', 1);
   app.disable('x-powered-by');
@@ -28,7 +28,7 @@ export function createApp(): Express {
   );
   app.use(express.json({ limit: '16kb' }));
 
-  // No auth — Railway's healthcheck hits this.
+  // No auth — Render's healthcheck hits this.
   app.get('/health', (_req, res) => {
     res.json({ status: 'ok', uptime: process.uptime() });
   });

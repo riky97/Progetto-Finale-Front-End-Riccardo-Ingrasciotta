@@ -57,7 +57,7 @@ assertClerkKeys(clerkSecretKey, clerkPublishableKey);
 
 export const env = {
   nodeEnv: process.env.NODE_ENV ?? 'development',
-  /** Railway injects PORT; 8080 is the local default. */
+  /** Render injects PORT; 8080 is the local default. */
   port: Number(process.env.PORT ?? 8080),
   databaseUrl: required('DATABASE_URL'),
   clerkSecretKey,

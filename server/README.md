@@ -63,7 +63,7 @@ All `/api/*` routes require `Authorization: Bearer <clerk session token>` and
 
 | Method | Path | Body | Response |
 | --- | --- | --- | --- |
-| `GET` | `/health` | — | `200 { status, uptime }` — no auth, Railway healthcheck |
+| `GET` | `/health` | — | `200 { status, uptime }` — no auth, host healthcheck |
 | `GET` | `/api/favorites` | — | `200 { animeIds: number[] }`, newest first |
 | `POST` | `/api/favorites` | `{ animeId: number }` | `200 { animeId, createdAt }` |
 | `DELETE` | `/api/favorites/:animeId` | — | `204` |
@@ -121,16 +121,30 @@ curl -H "Authorization: Bearer $TOKEN" http://localhost:8080/api/favorites
 `.dev-keys.json` is gitignored. These are development-only credentials — never
 put them in a deployed environment.
 
-## Deploying to Railway
+## Deploying
 
-- Create a **Postgres** addon; it injects `DATABASE_URL` into the service.
-- Create a **Node service** from this repo and set **Root Directory** to
-  `server`. `railway.json` in this directory supplies the build command,
-  `prisma migrate deploy` as the pre-deploy step, the start command, and
-  `/health` as the healthcheck path.
-- Set `CLERK_SECRET_KEY`, `CLERK_PUBLISHABLE_KEY` and `CORS_ORIGIN` (the
-  deployed frontend origin) as service variables. Do not set `PORT` — Railway
-  injects it.
+**Database — Supabase (free).** Create a project at
+<https://supabase.com>, then Project Settings → Database → Connection string →
+**URI**, pooled/"Transaction" mode (port 6543). That's `DATABASE_URL`.
+
+**Backend — Render (free web service).**
+
+- New → Web Service → connect this repo. Render reads `server/render.yaml`
+  (Blueprint) for the build/start commands, health check path and the plan;
+  or set them manually if you create the service from the dashboard instead:
+  **Root Directory** `server`, build `npm ci && npm run build`, start
+  `npx prisma migrate deploy && node dist/index.js`, health check `/health`.
+- Set `DATABASE_URL` (from Supabase above), `CLERK_SECRET_KEY`,
+  `CLERK_PUBLISHABLE_KEY` and `CORS_ORIGIN` (the deployed frontend origin) as
+  environment variables. Do not set `PORT` — Render injects it.
+- Free-plan services sleep after 15 minutes of inactivity; the first request
+  after that takes a few seconds to wake up. Fine for a personal project, not
+  for anything latency-sensitive.
+
+**Railway** works too (`railway.json` in this directory is still valid) but
+its free tier grants only $1/month of usage credit, which a Postgres add-on
+plus an always-on web service exhausts almost immediately — expect to need a
+paid Hobby plan there.
 
 ## Notes on versions
 

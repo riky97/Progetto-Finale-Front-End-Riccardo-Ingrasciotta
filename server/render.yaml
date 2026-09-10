@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: anime-list-server
+    runtime: node
+    rootDir: server
+    plan: free
+    buildCommand: npm ci && npm run build
+    # Render's free plan has no pre-deploy step, so the migration runs before
+    # the server starts instead of as a separate phase.
+    startCommand: npx prisma migrate deploy && node dist/index.js
+    healthCheckPath: /health
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: CLERK_SECRET_KEY
+        sync: false
+      - key: CLERK_PUBLISHABLE_KEY
+        sync: false
+      - key: CLERK_JWT_KEY
+        sync: false
+      - key: CORS_ORIGIN
+        sync: false
