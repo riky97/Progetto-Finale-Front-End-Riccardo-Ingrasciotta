@@ -188,6 +188,22 @@ export interface AnimeGenre {
  */
 export type TopAnimeType = "tv" | "movie" | "ova" | "special" | "ona" | "music";
 
+/**
+ * Formats the genre filter bar offers. A superset of `TopAnimeType` — the top
+ * charts have no "TV Short" route, but the filter bar exposes it. Both map onto
+ * AniList's `MediaFormat` through the one table in `src/api/anime.ts`.
+ */
+export type MediaFormatFilter = TopAnimeType | "tv_short";
+
+/**
+ * The `MediaStatus` values the filter bar exposes. CANCELLED and HIATUS are
+ * deliberately left out: too niche to be worth a row in the control.
+ */
+export type MediaStatusFilter = "releasing" | "finished" | "upcoming";
+
+/** Sort orders the genre filter bar offers, mapped to `MediaSort` in `anime.ts`. */
+export type GenreSort = "popularity" | "score" | "trending" | "newest" | "title";
+
 /** Weekday used to build the airing-schedule time window. */
 export type ScheduleDay =
   | "monday"

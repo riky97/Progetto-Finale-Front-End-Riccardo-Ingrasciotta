@@ -6,6 +6,9 @@ import type {
   Anime,
   AnimeFull,
   AnimeGenre,
+  GenreSort,
+  MediaFormatFilter,
+  MediaStatusFilter,
   PagedResponse,
   ScheduleDay,
   TopAnimeType,
@@ -236,25 +239,60 @@ export async function searchAnime(
   return toPagedResponse(data.Page);
 }
 
+/** Optional server-side narrowing for the genre browse page. */
+export interface GenreFilters {
+  /** Defaults to `popularity`. */
+  sort?: GenreSort;
+  format?: MediaFormatFilter;
+  status?: MediaStatusFilter;
+  /**
+   * Minimum score on the UI's 0-10 scale (`scoreOutOfTen`'s scale), converted
+   * to AniList's 0-100 integer here. Omit for "any score" — do not pass 0,
+   * which AniList reads as the real filter "scored above zero".
+   */
+  minScore?: number;
+  /** `seasonYear`, e.g. 2020. */
+  year?: number;
+}
+
 /**
- * `Page.media(type: ANIME, genre: $genre, sort: POPULARITY_DESC)`
+ * `Page.media(type: ANIME, genre: $genre, sort: $sort, …)`
  *
  * AniList genres are plain strings, so `genre` here is a name such as
  * "Slice of Life" — not a numeric id. The `/genre/:genreId` route carries the
  * URL-encoded name.
+ *
+ * All narrowing is server-side: every filter is a native `Media(…)` argument,
+ * never a post-filter over a downloaded page (which would silently shrink the
+ * page size and break paging). Unset filters are left out of the variables map
+ * entirely rather than sent as `null`, so the argument is genuinely absent.
  */
 export async function getAnimeByGenre(
   genre: string,
-  { page = 1, limit }: Paged = {},
+  { page = 1, limit, sort, format, status, minScore, year }: Paged &
+    GenreFilters = {},
 ): Promise<PagedResponse<Anime>> {
   const query = `
-    query GenreAnime($genre: String, $page: Int, $perPage: Int) {
+    query GenreAnime(
+      $genre: String
+      $page: Int
+      $perPage: Int
+      $sort: [MediaSort]
+      $format: MediaFormat
+      $status: MediaStatus
+      $minScore: Int
+      $year: Int
+    ) {
       Page(page: $page, perPage: $perPage) {
         ${PAGE_INFO_FIELDS}
         media(
           type: ANIME
           genre: $genre
-          sort: POPULARITY_DESC
+          sort: $sort
+          format: $format
+          status: $status
+          averageScore_greater: $minScore
+          seasonYear: $year
           isAdult: false
         ) {
           ${MEDIA_CARD_FIELDS}
@@ -263,11 +301,23 @@ export async function getAnimeByGenre(
     }
   `;
 
-  const data = await gqlRequest<{ Page: RawPage }>(query, {
+  const variables: Record<string, unknown> = {
     genre,
     page,
     perPage: clampPerPage(limit, 24),
-  });
+    sort: MEDIA_SORT_BY_FILTER[sort ?? "popularity"],
+  };
+
+  if (format) variables.format = FORMAT_BY_FILTER[format];
+  if (status) variables.status = MEDIA_STATUS_BY_FILTER[status];
+  if (year) variables.year = year;
+  // `averageScore_greater` is strictly greater, so a UI choice of "7.0+" has to
+  // ask for > 69 if a title scoring exactly 70 is to be included.
+  if (minScore && minScore > 0) {
+    variables.minScore = Math.round(minScore * 10) - 1;
+  }
+
+  const data = await gqlRequest<{ Page: RawPage }>(query, variables);
 
   return toPagedResponse(data.Page);
 }
@@ -411,6 +461,31 @@ const FORMAT_BY_TOP_TYPE: Record<TopAnimeType, string> = {
   special: "SPECIAL",
   ona: "ONA",
   music: "MUSIC",
+};
+
+/**
+ * The genre filter bar's formats: the top-chart routes plus TV_SHORT, which has
+ * no route of its own. Extends the table above rather than duplicating it, so
+ * there is still exactly one `MediaFormat` mapping in the app.
+ */
+const FORMAT_BY_FILTER: Record<MediaFormatFilter, string> = {
+  ...FORMAT_BY_TOP_TYPE,
+  tv_short: "TV_SHORT",
+};
+
+const MEDIA_SORT_BY_FILTER: Record<GenreSort, string> = {
+  popularity: "POPULARITY_DESC",
+  score: "SCORE_DESC",
+  trending: "TRENDING_DESC",
+  newest: "START_DATE_DESC",
+  // Romaji, because that is the title `normaliseMedia` puts on the card first.
+  title: "TITLE_ROMAJI",
+};
+
+const MEDIA_STATUS_BY_FILTER: Record<MediaStatusFilter, string> = {
+  releasing: "RELEASING",
+  finished: "FINISHED",
+  upcoming: "NOT_YET_RELEASED",
 };
 
 /** AniList screams its enums; the UI does not. */

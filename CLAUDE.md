@@ -40,7 +40,7 @@ No lint script is configured; correctness is enforced by `tsc` in strict mode (`
     | `getUpcomingAnime(…)` | `Page.media(status: NOT_YET_RELEASED, sort: POPULARITY_DESC)` |
     | `getScheduleForDay(day, …)` | `Page.airingSchedules(airingAt_greater/lesser: …)` |
     | `searchAnime(q, …)` | `Page.media(search: $q, sort: SEARCH_MATCH)` |
-    | `getAnimeByGenre(name, …)` | `Page.media(genre: $genre, sort: POPULARITY_DESC)` |
+    | `getAnimeByGenre(name, …)` | `Page.media(genre: $genre, sort: $sort, …)` — optional `sort`/`format`/`status`/`minScore`/`year` filters |
     | `getAnimeById(id)` | `Media(id: $id, type: ANIME)` |
     | `getAnimeByIds(ids)` | `Page.media(id_in: $ids)`, chunked at 50 |
     | `getAnimeGenres()` | `GenreCollection` |
@@ -52,6 +52,7 @@ No lint script is configured; correctness is enforced by `tsc` in strict mode (`
   - **Descriptions contain inline HTML** (`<br>`, `<i>`, entities). `stripHtml()` reduces them to plain text with paragraph breaks preserved; `.prose` already sets `white-space: pre-line`. Never `dangerouslySetInnerHTML` this.
   - **There is no weekday filter.** `weekdayWindow()` converts a `ScheduleDay` into a local midnight-to-midnight unix range for the nearest upcoming occurrence of that weekday. `airingSchedules` returns **one row per episode**, so results are deduped by media id (a batch-released season would otherwise repeat) and re-sorted by popularity, because raw time order is dominated by long-running ONAs.
   - **`pageInfo.total` is capped at 5000** for broad queries. Treat `>= 5000` as "lots" and don't print it as a count — `BrowsePage` suppresses the figure at the cap. Narrow queries (e.g. search) return a real total.
+  - **The genre page's filters are all native `Media(…)` arguments** — never a client-side pass over a downloaded page, which would shrink the page size and break paging. They live in the query string (`?sort=score&format=tv&score=7&status=releasing&year=2020`, parsed in [genreFilters.ts](src/features/browse/genreFilters.ts)) and any change drops `?page=`. Unset filters are left out of the variables map entirely, since an explicit `null` is a real argument to AniList. Two gotchas: `averageScore_greater` is *strictly* greater, so "7.0+" asks for `> 69`; and `sort` is a list type (`[MediaSort]`), so the variable is declared as one.
   - **`perPage` maxes out at 50**; asking for more is a validation error. `clampPerPage` enforces this.
   - AniList has no equivalent of Jikan's `background` field, so that detail-page block is gone. Adult titles are excluded via `isAdult: false` on every list query (and client-side for `airingSchedules`, which has no such argument); "Hentai" is likewise dropped from the genre list so it can't link to a guaranteed-empty page.
 

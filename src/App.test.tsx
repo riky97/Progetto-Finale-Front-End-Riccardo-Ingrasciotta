@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { MemoryRouter } from "react-router-dom";
 import { describe, expect, it, vi, beforeEach } from "vitest";
@@ -111,6 +111,63 @@ describe("App", () => {
       screen.getByRole("link", { name: /favourites/i }),
     ).toBeInTheDocument();
     expect(screen.getByRole("link", { name: /watched/i })).toBeInTheDocument();
+  });
+
+  it("reads the genre filters out of the query string", async () => {
+    const { getAnimeByGenre } = await import("@/api/anime");
+
+    renderAt("/genre/Action?sort=score&format=movie&score=7.5&status=releasing&year=2020&page=2");
+
+    expect(getAnimeByGenre).toHaveBeenCalledWith("Action", {
+      page: 2,
+      limit: 24,
+      sort: "score",
+      format: "movie",
+      status: "releasing",
+      minScore: 7.5,
+      year: 2020,
+    });
+  });
+
+  it("resets to page 1 when a filter changes, keeping the other filters", async () => {
+    const { getAnimeByGenre } = await import("@/api/anime");
+
+    renderAt("/genre/Action?format=movie&page=3");
+    vi.mocked(getAnimeByGenre).mockClear();
+
+    fireEvent.change(screen.getByLabelText(/sort/i), {
+      target: { value: "trending" },
+    });
+
+    expect(getAnimeByGenre).toHaveBeenCalledWith(
+      "Action",
+      expect.objectContaining({ page: 1, sort: "trending", format: "movie" }),
+    );
+  });
+
+  it("clears every filter from the URL with one control", async () => {
+    const { getAnimeByGenre } = await import("@/api/anime");
+
+    renderAt("/genre/Action?sort=score&format=movie&year=2020");
+    vi.mocked(getAnimeByGenre).mockClear();
+
+    fireEvent.click(screen.getByRole("button", { name: /clear filters/i }));
+
+    expect(getAnimeByGenre).toHaveBeenCalledWith("Action", {
+      page: 1,
+      limit: 24,
+      sort: "popularity",
+      format: undefined,
+      status: undefined,
+      minScore: undefined,
+      year: undefined,
+    });
+  });
+
+  it("keeps the filter bar off the top charts, which are a fixed chart", () => {
+    renderAt("/topanime/tv");
+    expect(screen.queryByRole("button", { name: /clear filters/i })).toBeNull();
+    expect(screen.queryByLabelText(/min score/i)).toBeNull();
   });
 
   it("explains the signed-out state on /favorites instead of redirecting", () => {

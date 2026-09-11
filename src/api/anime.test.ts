@@ -198,6 +198,49 @@ describe("queries", () => {
     expect(post.mock.calls[0][1]).toMatchObject({ genre: "Slice of Life" });
   });
 
+  it("defaults the genre page to popularity and sends no filter arguments", async () => {
+    post.mockResolvedValue({ Page: { pageInfo: null, media: [] } });
+
+    await getAnimeByGenre("Action");
+
+    const variables = post.mock.calls[0][1];
+    expect(variables).toMatchObject({ sort: "POPULARITY_DESC" });
+    // Unset filters are absent from the variables map, not sent as null — an
+    // explicit null is a real argument to AniList.
+    expect(variables).not.toHaveProperty("format");
+    expect(variables).not.toHaveProperty("status");
+    expect(variables).not.toHaveProperty("minScore");
+    expect(variables).not.toHaveProperty("year");
+  });
+
+  it("maps the genre filters onto AniList's enums", async () => {
+    post.mockResolvedValue({ Page: { pageInfo: null, media: [] } });
+
+    await getAnimeByGenre("Action", {
+      sort: "newest",
+      format: "tv_short",
+      status: "upcoming",
+      year: 2020,
+    });
+
+    expect(post.mock.calls[0][1]).toMatchObject({
+      sort: "START_DATE_DESC",
+      format: "TV_SHORT",
+      status: "NOT_YET_RELEASED",
+      year: 2020,
+    });
+  });
+
+  it("rescales the 0-10 minimum score and keeps the chosen score inclusive", async () => {
+    post.mockResolvedValue({ Page: { pageInfo: null, media: [] } });
+
+    await getAnimeByGenre("Action", { minScore: 7.5 });
+
+    // `averageScore_greater` is strictly greater, so 7.5 asks for > 74 in
+    // order to include titles scoring exactly 75.
+    expect(post.mock.calls[0][1]).toMatchObject({ minScore: 74 });
+  });
+
   it("maps GenreCollection strings to genre objects and drops Hentai", async () => {
     post.mockResolvedValue({
       GenreCollection: ["Action", "Hentai", "Mecha", null],
